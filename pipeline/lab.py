@@ -24,6 +24,8 @@ class Rig(dj.Manual):
     """
 
 
+# ---- Animal information ----
+
 @schema
 class AnimalStrain(dj.Lookup):
     definition = """
@@ -103,6 +105,7 @@ class WaterRestriction(dj.Manual):
     wr_start_weight             : Decimal(6,3)
     """
 
+# ---- Virus information ----
 
 @schema
 class VirusSource(dj.Lookup):
@@ -143,6 +146,9 @@ class Virus(dj.Manual):
         """
 
 
+# ---- Brain region/location information ----
+
+
 @schema
 class SkullReference(dj.Lookup):
     definition = """
@@ -170,6 +176,9 @@ class Hemisphere(dj.Lookup):
     hemisphere: varchar(32)
     """
     contents = zip(['left', 'right', 'both'])
+
+
+# ---- Surgery information ----
 
 
 @schema
@@ -222,6 +231,8 @@ class SurgeryLocation(dj.Manual):
     -> Hemisphere
     -> BrainArea 
     """
+
+# ---- Probe information ----
 
 
 @schema
@@ -370,6 +381,8 @@ class Probe(dj.Lookup):
     probe_comment='' :  varchar(1000)
     """
 
+
+# ---- Others ----
 
 @schema
 class PhotostimDevice(dj.Lookup):

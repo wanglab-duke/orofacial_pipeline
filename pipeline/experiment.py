@@ -309,7 +309,7 @@ class PhotostimEvent(dj.Imported):
     """
 
 
-# ----
+# ---- Task Period ----
 
 
 @schema
