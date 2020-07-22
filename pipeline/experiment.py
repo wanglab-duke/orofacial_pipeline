@@ -117,7 +117,7 @@ class PhotostimBrainRegion(dj.Computed):
 
 
 # ---- Session Trial structure ----
-
+#      (perhaps not relevant)
 
 @schema
 class SessionTrial(dj.Imported):
@@ -189,6 +189,7 @@ class SessionComment(dj.Manual):
 
 
 # ---- behavioral trials ----
+#   (perhaps not relevant)
 
 @schema
 class TrialInstruction(dj.Lookup):
@@ -289,6 +290,8 @@ class ActionEvent(dj.Imported):
 
 
 # ---- Photostim trials ----
+#    (perhaps not relevant)
+
 
 @schema
 class PhotostimTrial(dj.Imported):
@@ -310,6 +313,7 @@ class PhotostimEvent(dj.Imported):
 
 
 # ---- Task Period ----
+#   (perhaps not relevant)
 
 
 @schema

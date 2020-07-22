@@ -105,6 +105,7 @@ class WaterRestriction(dj.Manual):
     wr_start_weight             : Decimal(6,3)
     """
 
+
 # ---- Virus information ----
 
 @schema
@@ -347,6 +348,16 @@ class ProbeType(dj.Lookup):
 
 
 @schema
+class Probe(dj.Lookup):
+    definition = """  # represent a physical probe
+    probe: varchar(32)  # unique identifier for this model of probe (e.g. part number)
+    ---
+    -> ProbeType
+    probe_comment='' :  varchar(1000)
+    """
+
+
+@schema
 class ElectrodeConfig(dj.Lookup):
     definition = """
     -> ProbeType
@@ -370,16 +381,6 @@ class ElectrodeConfig(dj.Lookup):
         ---
         is_used: bool  # is this channel used for spatial average (ref channels are by default not used)
         """
-
-
-@schema
-class Probe(dj.Lookup):
-    definition = """  # represent a physical probe
-    probe: varchar(32)  # unique identifier for this model of probe (e.g. part number)
-    ---
-    -> ProbeType
-    probe_comment='' :  varchar(1000)
-    """
 
 
 # ---- Others ----

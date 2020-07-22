@@ -36,10 +36,10 @@ class Tracking(dj.Imported):
     '''
 
     definition = """
-    -> experiment.SessionTrial
+    -> experiment.Session
     -> TrackingDevice
     ---
-    tracking_samples:           int             # number of events (possibly frame number, relative to the start of the trial)
+    tracking_samples:           int     # e.g. frame number, relative to the start of the session
     """
 
     class NoseTracking(dj.Part):
@@ -90,21 +90,14 @@ class Tracking(dj.Imported):
     class WhiskerTracking(dj.Part):
         definition = """
         -> Tracking
-        whisker_name:         varchar(36)
+        whisker_idx:          int             # 0, 1, 2
         ---
-        whisker_x:            longblob        # whisker x location (px)
-        whisker_y:            longblob        # whisker y location (px)
-        whisker_likelihood:   longblob        # whisker location likelihood
+        whisker_x:            longblob        # whisker x location (px) over time
+        whisker_y:            longblob        # whisker y location (px) over time
+        face_angle:           longblob
+        whikser_length:       longblob
+        whiskerness_score:    longblob
         """
-
-    @property
-    def tracking_features(self):
-        return {'NoseTracking': Tracking.NoseTracking,
-                'TongueTracking': Tracking.TongueTracking,
-                'JawTracking': Tracking.JawTracking,
-                'LeftPawTracking': Tracking.LeftPawTracking,
-                'RightPawTracking': Tracking.RightPawTracking,
-                'WhiskerTracking': Tracking.WhiskerTracking}
 
 
 @schema
@@ -118,3 +111,23 @@ class TrackedWhisker(dj.Manual):
         -> master
         -> lab.Whisker
         """
+
+
+# ---- Processed Whisker data ----
+
+
+@schema
+class ProcessedWhisker(dj.Computed):
+    definition = """
+    -> Tracking.WhiskerTracking
+    ---
+    amplitude: longblob
+    velocity: longblob
+    set_point: longblob
+    angle: longblob
+    angle_raw: longblob
+    angle_bp: longblob
+    frequency: longblob
+    phase: longblob
+    """
+
