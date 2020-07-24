@@ -15,7 +15,7 @@ def get_schema_name(name):
     try:
         return dj.config['custom']['{}.database'.format(name)]
     except KeyError:
-        prefix = 'orofacial_'
+        prefix = 'cosmo_'
 
     return prefix + name
 
