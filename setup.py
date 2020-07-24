@@ -6,7 +6,7 @@ import sys
 here = path.abspath(path.dirname(__file__))
 
 long_description = """"
-WangLab's DataJoint pipeline for orofacial experiments
+WangLab's DataJoint pipeline for the Orofacial Sensorimotor Circuits project
 """
 
 with open(path.join(here, 'requirements.txt')) as f:
@@ -15,7 +15,7 @@ with open(path.join(here, 'requirements.txt')) as f:
 setup(
     name='orofacial',
     version='0.0.1',
-    description="WangLab Orofacial Pipeline",
+    description="WangLab Orofacial Sensorimotor Circuits Pipeline",
     long_description=long_description,
     author='',
     author_email='',
