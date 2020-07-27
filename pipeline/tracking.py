@@ -92,11 +92,14 @@ class Tracking(dj.Imported):
         -> Tracking
         whisker_idx:          int             # 0, 1, 2
         ---
-        whisker_x:            longblob        # whisker x location (px) over time
-        whisker_y:            longblob        # whisker y location (px) over time
-        face_angle:           longblob
-        whikser_length:       longblob
-        whiskerness_score:    longblob
+        angle:         longblob  # mean angle at follicle
+        curvature:     longblob  # mean curvature (1/mm)
+        face_x:        longblob  # approximate center of whisker pad, x (px)
+        face_y:        longblob  # approximate center of whisker pad, y (px) 
+        follicle_x:    longblob  # follicle position: x (px)
+        follicle_y:    longblob  # follicle position: y (px)
+        tip_x:         longblob  # tip position: x (px)
+        tip_y:         longblob  # tip position: y (px)
         """
 
 

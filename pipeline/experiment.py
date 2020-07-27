@@ -29,12 +29,14 @@ class Task(dj.Lookup):
     ----
     task_description : varchar(4000)
     """
+
     contents = [
-        ('audio delay', 'auditory delayed response task (2AFC)'),
-        ('audio mem', 'auditory working memory task'),
-        ('s1 stim', 'S1 photostimulation task (2AFC)'),
-        ('foraging', 'foraging task based on Bari-Cohen 2019'),
-        ('foraging 3lp', 'foraging task based on Bari-Cohen 2019 with variable delay period')
+        ('fm texture discrim', 'freely moving texture discrimination)'),
+        ('hf texture discrim', 'head fixed texture discrimination)'),
+        ('hf pole loc', 'head fixed pole localization)'),
+        ('hf wall dist', 'head-fixed wall distance'),
+        ('hf wheel', 'head-fixed wheel runing'),
+        ('gen tun', 'unstructured generic tuning stimulation)')
     ]
 
 
@@ -47,19 +49,8 @@ class TaskProtocol(dj.Lookup):
     ---
     task_protocol_description : varchar(4000)
     """
-    contents = [
-        ('audio delay', 1, 'high tone vs. low tone'),
-        ('s1 stim', 2, 'mini-distractors'),
-        ('s1 stim', 3, 'full distractors, with 2 distractors (at different times) on some of the left trials'),
-        ('s1 stim', 4, 'full distractors'),
-        ('s1 stim', 5, 'mini-distractors, with different levels of the mini-stim during sample period'),
-        ('s1 stim', 6, 'full distractors; same as protocol 4 but with a no-chirp trial-type'),
-        ('s1 stim', 7, 'mini-distractors and full distractors (only at late delay)'),
-        ('s1 stim', 8, 'mini-distractors and full distractors (only at late delay), with different levels of the mini-stim and the full-stim during sample period'),
-        ('s1 stim', 9, 'mini-distractors and full distractors (only at late delay), with different levels of the mini-stim and the full-stim during sample period'),
-        ('foraging', 100, 'moving lickports, delay period, early lick punishment, sound GO cue then free choice'),
-        ('foraging 3lp', 101, 'moving lickports, delay period, early lick punishment, sound GO cue then free choice from three lickports')
-    ]
+
+    contents = []
 
 
 # ---- Photostimulation ----
@@ -157,11 +148,7 @@ class TrainingType(dj.Lookup):
     ---
     training_type_description : varchar(2000) # description
     """
-    contents = [
-         ('regular', ''),
-         ('regular + distractor', 'mice were first trained on the regular S1 photostimulation task  without distractors, then the training continued in the presence of distractors'),
-         ('regular or regular + distractor', 'includes both training options')
-         ]
+    contents = []
 
 
 @schema
