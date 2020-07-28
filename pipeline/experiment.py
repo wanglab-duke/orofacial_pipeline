@@ -188,15 +188,6 @@ class TrialInstruction(dj.Lookup):
 
 
 @schema
-class Choice(dj.Lookup):
-    definition = """
-    # Choice of the mouse 
-    choice  : varchar(8) 
-    """
-    contents = zip(('left', 'right', 'middle', 'none'))
-
-
-@schema
 class Outcome(dj.Lookup):
     definition = """
     outcome : varchar(32)
@@ -225,7 +216,6 @@ class BehaviorTrial(dj.Imported):
     -> TaskProtocol
     -> TrialInstruction
     -> EarlyLick
-    -> Choice
     -> Outcome
     auto_water=0: bool
     free_water=0: bool
