@@ -98,10 +98,13 @@ class CellType(dj.Lookup):
     cell_type_description :  varchar(4000)
     """
     contents = [
-        ('Pyr', 'putative pyramidal'),
         ('FS', 'fast spiking'),
-        ('not classified', 'intermediate spike-width that falls between spike-width thresholds for FS or Putative pyramidal cells'),
-        ('all', 'all types')
+        ('not classified', 'not classified'),
+        ('all', 'all types'),
+        ('PM', 'premotor'),
+        ('Proj', 'projection neuron'),
+        ('NTNG1', 'Netrin-G1'),
+        ('PV', 'Parvalbumin positive neuron')
     ]
 
 
@@ -170,6 +173,18 @@ class Unit(dj.Imported):
 
 
 @schema
+class PhotoTaggedUnit(dj.Manual):
+    definition = """
+    -> Unit
+    ---
+    -> experiment.Photostim
+    responses : enum('yes', 'no', 'maybe')
+    responsive_channels=null : varchar(30)  # responsive channels
+    response_delay=null : float # ms
+    """
+
+
+@schema
 class UnitCellType(dj.Computed):
     definition = """
     -> Unit
@@ -203,6 +218,7 @@ class UnitStat(dj.Computed):
     ---
     isi_violation=null: float    # 
     avg_firing_rate=null: float  # (Hz)
+    avg_cv2=null: float
     """
 
     isi_threshold = 0.002  # threshold for isi violation of 2 ms

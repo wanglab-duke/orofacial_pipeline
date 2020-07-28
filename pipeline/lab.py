@@ -6,11 +6,21 @@ schema = dj.schema(get_schema_name('lab'))
 
 
 @schema
+class Lab(dj.Manual):
+    definition = """ # Lab
+    lab : varchar(255)  #  lab conducting the study
+    ---
+    institution : varchar(255)  # Institution to which the lab belongs
+    """
+
+
+@schema
 class Person(dj.Manual):
     definition = """
     username : varchar(24) 
     ----
     fullname : varchar(255)
+    -> Lab
     """
 
 
@@ -19,6 +29,7 @@ class Rig(dj.Manual):
     definition = """
     rig             : varchar(24)
     ---
+    -> Lab
     room            : varchar(20) # example 2w.342
     rig_description : varchar(1024) 
     """
@@ -31,7 +42,10 @@ class AnimalStrain(dj.Lookup):
     definition = """
     animal_strain       : varchar(30)
     """
-    contents = zip(['pl56', 'kj18'])
+    contents = zip(['C57BL6', 'Ai14', 'Ai32', 'Ai35', 'Ai65D',
+                    'Emx1_Cre', 'GAD2_Cre', 'vGLut2_Cre', 'Pv_Cre',
+                    'Pv_CreERt2', 'Pv_CreN', 'TrpV1_Cre', 'Netrin_G1_Cre',
+                    'FosTVA', 'Rphi_AP', 'Rphi_tomato', 'Rphi_GFP', 'ChodlPLAP'])
 
 
 @schema
@@ -39,7 +53,7 @@ class AnimalSource(dj.Lookup):
     definition = """
     animal_source       : varchar(30)
     """
-    contents = zip(['Jackson Labs', 'Allen Institute', 'Charles River', 'MMRRC', 'Taconic', 'Other'])
+    contents = zip(['Jackson Labs', 'Allen Institute', 'Charles River', 'MMRRC', 'Taconic', 'Lab made', 'Other'])
 
 
 @schema
@@ -54,10 +68,10 @@ class ModifiedGene(dj.Manual):
 @schema
 class Subject(dj.Manual):
     definition = """
-    subject_id          : int   # institution 6 digit animal ID
+    subject_id          : varchar(10)
     ---
     -> [nullable] Person        # person responsible for the animal
-    cage_number         : int   # institution 6 digit animal ID
+    cage_number         : int   # institution 7 digit animal ID
     date_of_birth       : date  # format: yyyy-mm-dd
     sex                 : enum('M','F','Unknown')
     -> [nullable] AnimalSource  # where was the animal ordered from
@@ -113,7 +127,7 @@ class VirusSource(dj.Lookup):
     definition = """
     virus_source   : varchar(60)
     """
-    contents = zip(['Janelia', 'UPenn', 'Addgene', 'UNC', 'Other'])
+    contents = contents = zip(['Janelia', 'UPenn', 'Addgene', 'UNC', 'MIT', 'Duke', 'Lab made', 'Other'])
 
 
 @schema
@@ -146,6 +160,19 @@ class Virus(dj.Manual):
         note        : varchar(256)
         """
 
+
+"""
+For nomenclature reference, here are some vectors/compounds used in the lab:
+       'Dextran', 'CTb', 'AAV', 'AAV2', 'AAV2_1',
+       'AAV2_5', 'AAV2_8', 'AAV8', 'AAV2_9', 'AAV9', 'AAV',
+       'retroAAV', 'LV', 'FuGB2_LV', 'RG_LV', 'CANE_LV',
+       'EnVA_SAD_dG_RV', 'RG_CVS_N2cdG_RV', 'CANE_RV', 'KainicAcid'
+Nomenclature reference for constructs:
+       'Alexa568', 'TMR', 'GFP', 'EGFP', 'mNeonG',
+       'tdTomato', 'mCherry', 'RFP', 'Cre', 'Syn_Cre', 'CreC',
+       'EF1a_mCherry_IRES_WGA_Cre', 'EF1a_Flex_ChR2',
+       'Flex_TVAmCherry', 'Flex_TVA_RG_GFP'
+"""
 
 # ---- Brain region/location information ----
 
@@ -257,7 +284,7 @@ class ProbeType(dj.Lookup):
 
     @property
     def contents(self):
-        return zip(['silicon_probe', 'tetrode_array',
+        return zip(['silicon_probe', 'tetrode_array', 'single electrode',
                     'neuropixels 1.0 - 3A', 'neuropixels 1.0 - 3B',
                     'neuropixels 2.0 - SS', 'neuropixels 2.0 - MS'])
 
@@ -404,6 +431,7 @@ class Whisker(dj.Lookup):
     definition = """
     whisker: varchar(32)
     """
-    contents = zip(['B1', 'B2', 'B3',
-                    'C1', 'C2', 'C3',
-                    'D1', 'D2', 'D3'])
+    contents = zip(['Alpha', 'A1', 'A2', 'A3', 'A4',
+                    'Beta', 'B1', 'B2', 'B3', 'B4',
+                    'Gamma', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6',
+                    'Delta', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6'])
