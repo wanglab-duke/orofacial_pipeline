@@ -173,7 +173,7 @@ class Unit(dj.Imported):
 
 
 @schema
-class UnitPhotoTag(dj.Manual):
+class PhotoTaggedUnit(dj.Manual):
     definition = """
     -> Unit
     ---
