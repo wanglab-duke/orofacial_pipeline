@@ -17,79 +17,43 @@ class TrackingDevice(dj.Lookup):
     definition = """
     tracking_device:                    varchar(20)     # device type/function
     ---
-    tracking_position:                  varchar(20)     # device position
     sampling_rate:                      decimal(8, 4)   # sampling rate (Hz)
     tracking_device_description:        varchar(100)    # device description
     """
-    contents = [
-        ('Camera 0', 'side', 1/0.0034, 'Chameleon3 CM3-U3-13Y3M-CS (FLIR)'),
-        ('Camera 1', 'bottom', 1/0.0034, 'Chameleon3 CM3-U3-13Y3M-CS (FLIR)'),
-        ('Camera 2', 'body', 1/0.01, 'Chameleon3 CM3-U3-13Y3M-CS (FLIR)')]
+
+    contents = []
 
 
 @schema
 class Tracking(dj.Imported):
-    '''
-    Video feature tracking.
-    Position values in px; camera location is fixed & real-world position
-    can be computed from px values.
-    '''
-
     definition = """
     -> experiment.Session
     -> TrackingDevice
     ---
-    tracking_samples:           int     # e.g. frame number, relative to the start of the session
+    tracking_timestamps: longblob  # (s) timestamps with respect to the start of the session
     """
 
-    class NoseTracking(dj.Part):
+    class PositionTracking(dj.Part):
         definition = """
-        -> Tracking
+        -> master
         ---
-        nose_x:                 longblob        # nose x location (px)
-        nose_y:                 longblob        # nose y location (px)
-        nose_likelihood:        longblob        # nose location likelihood
+        position_x=null:  longblob # (px)
+        position_x=null:  longblob # (px)
+        speed=null:       longblob # (px/s)
         """
 
-    class TongueTracking(dj.Part):
+    class ObjectTracking(dj.Part):
         definition = """
-        -> Tracking
+        -> master
+        -> lab.ExperimentObject
         ---
-        tongue_x:               longblob        # tongue x location (px)
-        tongue_y:               longblob        # tongue y location (px)
-        tongue_likelihood:      longblob        # tongue location likelihood
-        """
-
-    class JawTracking(dj.Part):
-        definition = """
-        -> Tracking
-        ---
-        jaw_x:                  longblob        # jaw x location (px)
-        jaw_y:                  longblob        # jaw y location (px)
-        jaw_likelihood:         longblob        # jaw location likelihood
-        """
-
-    class LeftPawTracking(dj.Part):
-        definition = """
-        -> Tracking
-        ---
-        left_paw_x:             longblob        # left paw x location (px)
-        left_paw_y:             longblob        # left paw y location (px)
-        left_paw_likelihood:    longblob        # left paw location likelihood
-        """
-
-    class RightPawTracking(dj.Part):
-        definition = """
-        -> Tracking
-        ---
-        right_paw_x:            longblob        # right paw x location (px)
-        right_paw_y:            longblob        # right_paw y location (px)
-        right_paw_likelihood:   longblob        # right_paw location likelihood
+        object_x:     longblob  # (px)
+        object_y:     longblob  # (px)
         """
 
     class WhiskerTracking(dj.Part):
         definition = """
-        -> Tracking
+        -> master
         whisker_idx:          int             # 0, 1, 2
         ---
         angle:         longblob  # mean angle at follicle
@@ -118,12 +82,21 @@ class TrackedWhisker(dj.Manual):
 
 # ---- Processed Whisker data ----
 
+@schema
+class WhiskerProcessingParams(dj.Lookup):
+    definition = """
+    param_id: int
+    ---
+    
+    """
+
 
 @schema
 class ProcessedWhisker(dj.Computed):
     definition = """
     -> Tracking.WhiskerTracking
     ---
+    -> WhiskerProcessingParams
     amplitude: longblob
     velocity: longblob
     set_point: longblob
@@ -133,4 +106,8 @@ class ProcessedWhisker(dj.Computed):
     frequency: longblob
     phase: longblob
     """
+
+    def make(self, key):
+        # call whisker processing function here
+        pass
 
