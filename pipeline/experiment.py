@@ -11,10 +11,10 @@ schema = dj.schema(get_schema_name('experiment'))
 class Session(dj.Manual):
     definition = """
     -> lab.Subject
-    session: smallint 		# session number
+    session: smallint 		# session number 
     ---
     session_date: date
-    session_time: time
+    session_time: time  # t=0 is the start of the ephys acquisition
     unique index (subject_id, session_date, session_time)
     -> lab.Person
     -> lab.Rig
@@ -25,7 +25,7 @@ class Session(dj.Manual):
 class Task(dj.Lookup):
     definition = """
     # Type of tasks
-    task            : varchar(12)                  # task type
+    task            : varchar(24)                  # task type
     ----
     task_description : varchar(4000)
     """
@@ -62,8 +62,9 @@ class Photostim(dj.Manual):
     photo_stim :  smallint  # photostim protocol number
     ---
     -> lab.PhotostimDevice
-    duration=null:  decimal(8,4)   # (s)
-    waveform=null:  longblob       # normalized to maximal power. The value of the maximal power is specified for each PhotostimTrialEvent individually
+    burst_frequency=null: decimal(8,4)   # (Hz)
+    burst_duration=null:  decimal(8,4)   # (s)
+    waveform=null:  longblob             # normalized to maximal power. The value of the maximal power is specified for each PhotostimTrialEvent individually
     """
 
     class PhotostimLocation(dj.Part):
@@ -108,7 +109,6 @@ class PhotostimBrainRegion(dj.Computed):
 
 
 # ---- Session Trial structure ----
-#      (perhaps not relevant)
 
 @schema
 class SessionTrial(dj.Imported):
@@ -176,37 +176,6 @@ class SessionComment(dj.Manual):
 
 
 # ---- behavioral trials ----
-#   (perhaps not relevant)
-
-@schema
-class TrialInstruction(dj.Lookup):
-    definition = """
-    # Instruction to mouse 
-    trial_instruction  : varchar(8) 
-    """
-    contents = zip(('left', 'right', 'none'))
-
-
-@schema
-class Outcome(dj.Lookup):
-    definition = """
-    outcome : varchar(32)
-    """
-    contents = zip(('hit', 'miss', 'ignore'))
-
-
-@schema
-class EarlyLick(dj.Lookup):
-    definition = """
-    early_lick  :  varchar(32)
-    ---
-    early_lick_description : varchar(4000)
-    """
-    contents = [
-        ('early', 'early lick during sample and/or delay'),
-        ('early, presample only', 'early lick in the presample period, after the onset of the scheduled wave but before the sample period'),
-        ('no early', '')]
-
 
 @schema
 class BehaviorTrial(dj.Imported):
@@ -214,13 +183,30 @@ class BehaviorTrial(dj.Imported):
     -> SessionTrial
     ----
     -> TaskProtocol
-    -> TrialInstruction
-    -> EarlyLick
-    -> Outcome
-    auto_water=0: bool
-    free_water=0: bool
     """
 
+
+@schema
+class TrialOutcome(dj.Imported):
+    definition = """
+    -> BehaviorTrial
+    ---
+    outcome: enum('correct', 'incorrect')
+    """
+
+
+@schema
+class TrialObject(dj.Imported):
+    definition = """
+    -> BehaviorTrial
+    -> lab.ExperimentObject
+    ---
+    distance_x: decimal(8,4)  # (mm) distance of object from the animal's head (todo: use proper lab's terminology here)
+    distance_y: decimal(8,4)  # (mm) distance of object from the animal's head (todo: use proper lab's terminology here)
+    """
+
+
+# -- trial events and action events --
 
 @schema
 class TrialEventType(dj.Lookup):
@@ -267,7 +253,6 @@ class ActionEvent(dj.Imported):
 
 
 # ---- Photostim trials ----
-#    (perhaps not relevant)
 
 
 @schema
@@ -288,25 +273,6 @@ class PhotostimEvent(dj.Imported):
     power : decimal(8,3)   # Maximal power (mW)
     """
 
-
-# ---- Task Period ----
-#   (perhaps not relevant)
-
-
-@schema
-class Period(dj.Lookup):
-    definition = """  # time period between any two TrialEvent (eg the delay period is between delay and go)
-    period: varchar(12)
-    ---
-    -> TrialEventType.proj(start_event_type='trial_event_type')
-    start_time_shift: float  # (s) any time-shift amount with respect to the start_event_type
-    -> TrialEventType.proj(end_event_type='trial_event_type')
-    end_time_shift: float    # (s) any time-shift amount with respect to the end_event_type
-    """
-
-    contents = [('sample', 'sample', 0, 'delay', 0),
-                ('delay', 'delay', 0, 'go', 0),
-                ('response', 'go', 0, 'go', 1.2)]
 
 # ============================= PROJECTS ==================================================
 

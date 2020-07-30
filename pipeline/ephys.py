@@ -168,7 +168,7 @@ class Unit(dj.Imported):
         -> Unit
         -> experiment.SessionTrial
         ---
-        spike_times : longblob # (s) per-trial spike times relative to go-cue
+        spike_times : longblob # (s) per-trial spike times relative to trial-start
         """
 
 
