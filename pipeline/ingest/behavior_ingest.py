@@ -29,6 +29,7 @@ class InsertedSession(dj.Imported):
     -> experiment.Session
     ---
     loader_method: varchar(16)  # name of loader method used
+    sess_data_dir: varchar(255) # directory path for this session, relative to root data directory
     """
 
     class SessionFile(dj.Part):
@@ -65,6 +66,8 @@ class SessionIngestion(dj.Imported):
             sess_key = {**sess, 'session': sess_num}
 
             experiment.Session.insert1(sess_key)
-            InsertedSession.insert1({**sess_key, 'loader_method': session_loader_method})
-            InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f} for f in session_files])
+            InsertedSession.insert1({**sess_key,
+                                     'loader_method': session_loader_method,
+                                     'sess_data_dir': session_files[0].parent.relative_to(data_dir).as_posix()})
+            InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f.as_posix()} for f in session_files])
             
