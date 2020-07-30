@@ -70,4 +70,14 @@ class SessionIngestion(dj.Imported):
                                      'loader_method': session_loader_method,
                                      'sess_data_dir': session_files[0].parent.relative_to(data_dir).as_posix()})
             InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f.as_posix()} for f in session_files])
-            
+
+
+@schema
+class SessionDetailsIngestion(dj.Imported):
+    definition = """
+    -> InsertedSession
+    """
+
+    def make(self, key):
+        # ingest the remaining session related data (e.g. trials, objects, task protocol, photostim, etc.)
+        pass
