@@ -96,14 +96,34 @@ class TrackedWhisker(dj.Manual):
 @schema
 class WhiskerProcessingParams(dj.Lookup):
     definition = """
-    param_id: int
+    param_set: varchar(30)
     ---
-    
+    set_point: float       # (hz)  stopband edge frequency for low-pass threshold
+    angle_passband: float  # (hz)  passband edge frequencies to smooth out high frequencies and remove set point 
+    angle_stopband: float  # (hz)  stopband edge frequencies to smooth out high frequencies and remove set point 
+    phase_passband: float  # (hz)  passband edge frequencies for 2nd order Butterworth filter applied before Hilbert transform 
+    phase_stopband: float  # (hz)  stopband edge frequencies for 2nd order Butterworth filter applied before Hilbert transform 
     """
 
 
 @schema
 class ProcessedWhisker(dj.Computed):
+    """
+    Processing is performed on Angle_raw values, that contain the native whisker angle values.
+    Unless otherwise mentioned, filtering is done using Butterworth filter with passband ripple of
+     at least 3dB and stopband attenuation of at least 20dB, so that order N and natural frequency Wn are
+      [N,Wn] = buttord( Wp, Ws, 3, 20);
+
+    VP: for documentation, below are the three pre-processing steps performed in Matlab to obtain Angle_raw values (these steps should stay offline, at least for now). See also WhiskerAngleSmoothFill.m
+    1/ find and replace outliers
+        thetas = filloutliers(thetas,'spline','movmedian',20)';
+    2/ smooth values
+        thetas(whiskerNum,:)=smoothdata(thetas(whiskerNum,:),'rloess',7);
+    3/ fill missing / NaNs values (if any)
+        fillDim=find(size(thetas(whiskerNum,:))==max(size(thetas(whiskerNum,:))));
+        thetas(whiskerNum,:)=fillmissing(thetas(whiskerNum,:),'spline',fillDim,'EndValues','nearest');
+    """
+
     definition = """
     -> Tracking.WhiskerTracking
     ---
