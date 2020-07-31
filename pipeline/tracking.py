@@ -4,6 +4,7 @@ MAP Motion Tracking Schema
 '''
 
 import datajoint as dj
+import numpy as np
 
 from . import experiment, lab
 from . import get_schema_name
@@ -37,18 +38,29 @@ class Tracking(dj.Imported):
         definition = """
         -> master
         ---
-        position_x=null:  longblob # (px)
-        position_x=null:  longblob # (px)
-        speed=null:       longblob # (px/s)
+        distance_unit: enum('mm', 'm', 'px')
+        position_x=null:  longblob # 
+        position_y=null:  longblob # 
+        speed=null:       longblob # 
         """
 
     class ObjectTracking(dj.Part):
-        definition = """
+        definition = """  # x, y coordinates over time of a representative point on the object (e.g. the centroid)
         -> master
         -> lab.ExperimentObject
         ---
-        object_x:     longblob  # (px)
-        object_y:     longblob  # (px)
+        object_x:     longblob  # (px) 
+        object_y:     longblob  # (px) 
+        """
+
+    class ObjectPoint(dj.Part):
+        definition = """  # Tracked points per object
+        -> master
+        -> Tracking.ObjectTracking
+        point_id:     int       # point id
+        ---
+        point_x:     longblob  # (px) 
+        point_y:     longblob  # (px)  
         """
 
     class WhiskerTracking(dj.Part):
@@ -111,3 +123,29 @@ class ProcessedWhisker(dj.Computed):
         # call whisker processing function here
         pass
 
+
+# ---- Processed object data ----
+
+
+@schema
+class WhiskerObjectDistance(dj.Computed):
+    definition = """
+    -> Tracking.ObjectTracking
+    -> Tracking.WhiskerTracking
+    ---
+    distance: longblob  #  euclidean distance over time between a whisker and an object, relative to animal's face
+    """
+
+    def make(self, key):
+        # example code
+        obj_x, obj_y = (Tracking.ObjectTracking & key).fetch1('object_x', 'object_y')
+        fol_x, fol_y, face_x, face_y = (Tracking.ObjectTracking & key).fetch1(
+            'follicle_x', 'follicle_y', 'face_x', 'face_y')
+
+        face_pos = np.array([face_x, face_y])
+        obj_pos = np.array([obj_x, obj_y])
+        fol_pos = np.array([fol_x, fol_y])
+
+        dist = np.linalg.norm((fol_pos - face_pos) - (obj_pos - face_pos), axis=0)
+
+        self.insert1({**key, 'distance': dist})

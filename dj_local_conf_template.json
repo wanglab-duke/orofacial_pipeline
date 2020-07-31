@@ -1,0 +1,22 @@
+{
+    "database.host": "db_host",
+    "database.user": "username",
+    "database.password": "password",
+    "database.port": 3306,
+    "connection.init_function": null,
+    "database.reconnect": true,
+    "enable_python_native_blobs": true,
+    "loglevel": "INFO",
+    "safemode": true,
+    "display.limit": 7,
+    "display.width": 14,
+    "display.show_tuple_count": true,
+    "stores": {},
+    "custom": {
+        "database.prefix": "username_",
+        "data_root_dir": "D:/data",
+        "session_loader_class": "VincentLoader",
+        "username": "username",
+        "rig": "rig1"
+    }
+}
