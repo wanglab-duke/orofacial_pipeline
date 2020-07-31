@@ -6,21 +6,25 @@ from . import session_loaders
 
 schema = dj.schema(get_schema_name('behavior_ingest'))
 
-# obtain user configured root data directory and session loader from dj.config
+# ============== SETUP the LOADER ==================
+
 try:
     data_dir = dj.config['custom']['data_root_dir']
 except KeyError:
     raise KeyError('Unspecified data root directory! Please specify "data_root_dir" under dj.config["custom"]')
 
 try:
-    session_loader_method = dj.config['custom']['session_loader_method']
+    session_loader_class = dj.config['custom']['session_loader_class']
 except KeyError:
     raise KeyError('Unspecified session loader method! Please specify "session_loader_method" under dj.config["custom"]')
 
-if session_loader_method in session_loaders.__dict__:
-    session_loader = session_loaders.__dict__[session_loader_method]
+if session_loader_class in session_loaders.__dict__:
+    session_loader = session_loaders.__dict__[session_loader_class](data_dir)
 else:
-    raise RuntimeError(f'Unknown session loading function: {session_loader_method}')
+    raise RuntimeError(f'Unknown session loading function: {session_loader_class}')
+
+
+# ============== BEHAVIOR INGESTION ==================
 
 
 @schema
@@ -39,37 +43,34 @@ class InsertedSession(dj.Imported):
         """
 
 
-@schema
-class SessionIngestion(dj.Imported):
-    definition = """
-    -> lab.Subject
-    """
+def load_all_sessions(subject_id):
+    # ---- parse data dir and load all sessions ----
+    try:
+        sessions_to_ingest = session_loader.load_sessions(data_dir, subject_id)
+    except FileNotFoundError as e:
+        print(str(e))
+        return
 
-    def make(self, key):
-        try:
-            sessions_to_ingest = session_loaders(data_dir, key['subject_id'])
-        except FileNotFoundError as e:
-            print(str(e))
-            return
+    # ---- work on each session ----
+    for sess in sessions_to_ingest:
+        session_files = sess.pop('session_files')
 
-        for sess in sessions_to_ingest:
-            session_files = sess.pop('session_files')
+        if experiment.Session & sess:
+            print(f'Session {sess} already exists. Skipping...')
+            continue
 
-            if experiment.Session & sess:
-                continue
+        # ---- synthesize session number ----
+        sess_num = (dj.U().aggr(experiment.Session()
+                                & {'subject_id': subject_id},
+                                n='max(session)').fetch1('n') or 0) + 1
+        # ---- insert ----
+        sess_key = {**sess, 'session': sess_num}
 
-            # synthesize session number
-            sess_num = (dj.U().aggr(experiment.Session()
-                                    & {'subject_id': key['subject_id']},
-                                    n='max(session)').fetch1('n') or 0) + 1
-            # insert
-            sess_key = {**sess, 'session': sess_num}
-
-            experiment.Session.insert1(sess_key)
-            InsertedSession.insert1({**sess_key,
-                                     'loader_method': session_loader_method,
-                                     'sess_data_dir': session_files[0].parent.relative_to(data_dir).as_posix()})
-            InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f.as_posix()} for f in session_files])
+        experiment.Session.insert1(sess_key)
+        InsertedSession.insert1({**sess_key,
+                                 'loader_method': session_loader_class,
+                                 'sess_data_dir': session_files[0].parent.relative_to(data_dir).as_posix()})
+        InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f.as_posix()} for f in session_files])
 
 
 @schema
