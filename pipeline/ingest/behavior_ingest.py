@@ -19,10 +19,13 @@ except KeyError:
     raise KeyError('Unspecified session loader method! Please specify "session_loader_method" under dj.config["custom"]')
 
 if session_loader_class in session_loaders.__dict__:
-    session_loader = session_loaders.__dict__[session_loader_class](data_dir)
+    # instantiate a loader class with "data_dir" and "config" (optional)
+    loader_class = session_loaders.__dict__[session_loader_class]
 else:
     raise RuntimeError(f'Unknown session loading function: {session_loader_class}')
 
+# instantiate a loader class with "data_dir" and "config" (optional)
+session_loader = loader_class(data_dir, dj.config)
 
 # ============== BEHAVIOR INGESTION ==================
 
@@ -81,4 +84,6 @@ class SessionDetailsIngestion(dj.Imported):
 
     def make(self, key):
         # ingest the remaining session related data (e.g. trials, objects, task protocol, photostim, etc.)
+        session_loader.load_session_details()
+        # ...
         pass

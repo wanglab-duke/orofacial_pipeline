@@ -28,7 +28,8 @@ Any loader class must have the following interfaces:
 
 class VincentLoader:
 
-    def __init__(self, root_data_dir):
+    def __init__(self, root_data_dir, config={}):
+        self.config = config
         self.root_data_dir = root_data_dir
 
     def load_sessions(self, subject_name):
@@ -54,8 +55,8 @@ class VincentLoader:
                    'session_date': sess_datetime.date(),
                    'session_time': sess_datetime.time(),
                    'session_files': session_files,
-                   'username': '',
-                   'rig': ''}
+                   'username': self.config['custom']['username'],
+                   'rig': self.config['custom']['rig']}
 
     def load_session_details(self):
         pass
