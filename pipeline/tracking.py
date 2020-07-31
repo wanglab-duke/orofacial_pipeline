@@ -38,7 +38,6 @@ class Tracking(dj.Imported):
         definition = """
         -> master
         ---
-        distance_unit: enum('mm', 'm', 'px')
         position_x=null:  longblob # 
         position_y=null:  longblob # 
         speed=null:       longblob # 
