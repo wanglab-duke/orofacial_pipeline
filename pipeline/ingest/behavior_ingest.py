@@ -18,9 +18,9 @@ try:
 except KeyError:
     raise KeyError('Unspecified session loader method! Please specify "session_loader_method" under dj.config["custom"]')
 
-if session_loader_class in session_loaders.__dict__:
+if session_loader_class in dir(session_loaders):
     # instantiate a loader class with "data_dir" and "config" (optional)
-    loader_class = session_loaders.__dict__[session_loader_class]
+    loader_class = getattr(session_loaders, session_loader_class)
 else:
     raise RuntimeError(f'Unknown session loading function: {session_loader_class}')
 
@@ -49,7 +49,7 @@ class InsertedSession(dj.Imported):
 def load_all_sessions(subject_id):
     # ---- parse data dir and load all sessions ----
     try:
-        sessions_to_ingest = session_loader.load_sessions(data_dir, subject_id)
+        sessions_to_ingest = session_loader.load_sessions(subject_id)
     except FileNotFoundError as e:
         print(str(e))
         return
