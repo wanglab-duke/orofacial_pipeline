@@ -14,7 +14,7 @@ class Session(dj.Manual):
     session: smallint 		# session number 
     ---
     session_date: date
-    session_time: time  # t=0 is the start of the ephys acquisition
+    session_time: time  # t=0 is the start of the data acquisition from the master device (typically with the highest sampling rate, e.g., ephys acquisition device)
     unique index (subject_id, session_date, session_time)
     -> lab.Person
     -> lab.Rig
@@ -62,9 +62,11 @@ class Photostim(dj.Manual):
     photo_stim :  smallint  # photostim protocol number
     ---
     -> lab.PhotostimDevice
-    burst_frequency=null: decimal(8,4)   # (Hz)
-    burst_duration=null:  decimal(8,4)   # (s)
-    waveform=null:  longblob             # normalized to maximal power. The value of the maximal power is specified for each PhotostimTrialEvent individually
+    power : decimal(4,1)  # mW/mm²
+    pulse_duration=null:  decimal(8,4)   # (s)
+    pulse_frequency=null: decimal(8,4)   # (Hz)
+    pulses_per_train=null: smallint #
+    waveform=null:  longblob # normalized to maximal power.
     """
 
     class PhotostimLocation(dj.Part):
@@ -201,8 +203,13 @@ class TrialObject(dj.Imported):
     -> BehaviorTrial
     -> lab.ExperimentObject
     ---
-    distance_x: decimal(8,4)  # (mm) distance of object from the animal's head (todo: use proper lab's terminology here)
-    distance_y: decimal(8,4)  # (mm) distance of object from the animal's head (todo: use proper lab's terminology here)
+    distance_x: decimal(8,4)  # (mm) from the animal's face (0 is centered on whisker pad) to the object's center / tip.
+    distance_y: decimal(8,4)  # (mm) from the animal's face (0 is centered on whisker pad) to the object's center / tip.
+    distance_z: decimal(8,4)  # (mm) from the animal's face (0 is centered on whisker pad) to the object's center / tip.
+    direction=null: varchar(50)     # (forward, backward, looming ...) - If not static
+    texture=null: varchar(50)       # (rough / smooth / grit density) - For texture panels
+    strength=null: decimal(8,4)     # (in g) - for von Freys
+    temperature=null: decimal(8,4)  # (degrees Celsius) - for heat/cold experiments
     """
 
 
