@@ -47,12 +47,13 @@ class ProbeInsertion(dj.Manual):
         """
 
     class RecordingSystemSetup(dj.Part):
-        definition = """
-        -> master
-        ---
-        sampling_rate: int  # (Hz)
-        """
-
+    definition = """
+    -> master
+    ---
+    [nullable] -> lab.Adapter
+    [nullable] -> lab.Headstage
+    sampling_rate: int  # (Hz)
+    """
 
 @schema
 class LFP(dj.Imported):
