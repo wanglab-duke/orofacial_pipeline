@@ -5,6 +5,7 @@ import hashlib
 
 log = logging.getLogger(__name__)
 
+default_db_prefix = 'cosmo_'
 
 # safe-guard in case `custom` is not provided
 if 'custom' not in dj.config:
@@ -12,12 +13,7 @@ if 'custom' not in dj.config:
 
 
 def get_schema_name(name):
-    try:
-        return dj.config['custom']['{}.database'.format(name)]
-    except KeyError:
-        prefix = 'cosmo_'
-
-    return prefix + name
+    return dj.config['custom'].get('database.prefix', default_db_prefix) + name
 
 
 def dict_to_hash(key):

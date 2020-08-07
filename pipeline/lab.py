@@ -443,4 +443,4 @@ class ExperimentObject(dj.Lookup):
     object: varchar(24) 
     """
 
-    contents = ['wall', 'pole']
+    contents = ['wall_90', 'wall_45', 'pole', 'texture panel', 'von Frey', 'heat stim', 'cold stim', 'cuetip']
