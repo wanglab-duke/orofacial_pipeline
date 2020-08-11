@@ -23,7 +23,6 @@ class Person(dj.Manual):
     -> Lab
     """
 
-
 @schema
 class Rig(dj.Manual):
     definition = """
@@ -383,6 +382,23 @@ class Probe(dj.Lookup):
     probe_comment='' :  varchar(1000)
     """
 
+@schema
+class Adapter(dj.Lookup):
+    definition = """
+    adapter: varchar(100) # unique identifier for this model of probe adapter (e.g. part number)
+    ---
+    desc: varchar(1000)
+    desc_image=null: longblob #Adapter specs, including connector mapping
+    """
+
+@schema
+class Headstage(dj.Lookup):
+    definition = """
+    headstage: varchar(100) # unique identifier for this model of headstage (e.g. part number)
+    ---
+    desc: varchar(1000)
+    desc_image=null: longblob #Headstage specs, including connector mapping
+    """
 
 @schema
 class ElectrodeConfig(dj.Lookup):
@@ -442,5 +458,4 @@ class ExperimentObject(dj.Lookup):
     definition = """
     object: varchar(24) 
     """
-
-    contents = ['wall_90', 'wall_45', 'pole', 'texture panel', 'von Frey', 'heat stim', 'cold stim', 'cuetip']
+    contents = zip(['wall_90', 'wall_45', 'pole', 'texture panel', 'von Frey', 'heat stim', 'cold stim', 'cuetip'])
