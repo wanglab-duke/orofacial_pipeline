@@ -2,7 +2,7 @@ import datajoint as dj
 
 from pipeline import lab, experiment
 from pipeline import get_schema_name
-from . import session_loaders
+from pipeline.ingest import session_loaders
 
 schema = dj.schema(get_schema_name('behavior_ingest'))
 
@@ -72,8 +72,10 @@ def load_all_sessions(subject_id):
         experiment.Session.insert1(sess_key)
         InsertedSession.insert1({**sess_key,
                                  'loader_method': session_loader_class,
-                                 'sess_data_dir': session_files[0].parent.relative_to(data_dir).as_posix()})
-        InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f.as_posix()} for f in session_files])
+                                 'sess_data_dir': session_files[0].parent.as_posix()}, allow_direct_insert=True,
+                                ignore_extra_fields=True)
+        InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f.as_posix()} for f in session_files],
+                                           allow_direct_insert=True, ignore_extra_fields=True)
 
 
 @schema

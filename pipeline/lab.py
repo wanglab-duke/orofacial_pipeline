@@ -23,7 +23,6 @@ class Person(dj.Manual):
     -> Lab
     """
 
-
 @schema
 class Rig(dj.Manual):
     definition = """
@@ -459,5 +458,4 @@ class ExperimentObject(dj.Lookup):
     definition = """
     object: varchar(24) 
     """
-
-    contents = ['wall_90', 'wall_45', 'pole', 'texture panel', 'von Frey', 'heat stim', 'cold stim', 'cuetip']
+    contents = zip(['wall_90', 'wall_45', 'pole', 'texture panel', 'von Frey', 'heat stim', 'cold stim', 'cuetip'])
