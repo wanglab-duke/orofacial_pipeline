@@ -437,9 +437,14 @@ class PhotostimDevice(dj.Lookup):
     photostim_device_description : varchar(255)
     """
     contents =[
-       ('LaserGem473', 473, 'Laser (Laser Quantum, Gem 473)'),
-       ('LED470', 470, 'LED (Thor Labs, M470F3 - 470 nm, 17.2 mW (Min) Fiber-Coupled LED)'),
-       ('OBIS470', 473, 'OBIS 473nm LX 50mW Laser System: Fiber Pigtail (Coherent Inc)')]
+       ('OptoEngine473', 473, 'DPSS Laser (Opto Engine MBL-FF-473)'),
+       ('OptoEngine470', 470, 'DPSS Laser (Opto Engine MDL-III-470)'),
+       ('OptoEngine561_150', 561, 'DPSS Laser (Opto Engine MGL-FN-561-150mW)'),
+       ('OptoEngine561_100', 561, 'DPSS Laser (Opto Engine MGL-FN-561-100mW)'),
+       ('Cobolt473', 473, 'Diode Laser (Cobolt 06-MLD 473)'),
+       ('Cobolt633', 633, 'Diode Laser (Cobolt 06-MLD 633)'),
+       ('Doric465', 465, 'LED (Doric CLED 465)'),
+       ('Doric595', 595, 'LED (Doric CLED 595)')]
 
 
 @schema
