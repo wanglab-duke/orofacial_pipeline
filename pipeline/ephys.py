@@ -50,9 +50,10 @@ class ProbeInsertion(dj.Manual):
         definition = """
         -> master
         ---
+        -> [nullable] lab.Adapter
+        -> [nullable] lab.Headstage
         sampling_rate: int  # (Hz)
         """
-
 
 @schema
 class LFP(dj.Imported):
