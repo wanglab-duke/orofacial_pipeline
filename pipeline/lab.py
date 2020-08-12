@@ -443,6 +443,21 @@ class PhotostimDevice(dj.Lookup):
 
 
 @schema
+class FiberPhotometryDevice(dj.Lookup):
+    definition = """
+    fiberphotometry_device  : varchar(20)
+    ---
+    excitation_wavelength_1 :  decimal(5,1)  # (nm) 
+    excitation_wavelength_2 :  decimal(5,1)  # (nm) 
+    isosbestic_wavelength : decimal(5,1)  # (nm) 
+    photostim_device_description : varchar(255)
+    """
+    contents =[
+       ('FP3001', 560, 470, 415, 'Neurophotometrics FP3001'),
+       ('R801', 560, 470, 410, 'RWD R801')]
+
+
+@schema
 class Whisker(dj.Lookup):
     definition = """
     whisker: varchar(32)

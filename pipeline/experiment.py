@@ -68,9 +68,9 @@ class Photostim(dj.Manual):
     pulses_per_train=null: smallint #
     waveform=null:  longblob # normalized to maximal power.
     """
-
-    class PhotostimLocation(dj.Part):
-        definition = """
+   
+    class PhotostimLocation(dj.Part): 
+        definition = """ # Location of Fiber Optic Cannula
         -> master
         -> lab.SkullReference
         ap_location: decimal(6, 2) # (um) anterior-posterior; ref is 0; more anterior is more positive
@@ -81,7 +81,6 @@ class Photostim(dj.Manual):
         ---
         -> lab.BrainArea           # target brain area for photostim 
         """
-
 
 @schema
 class PhotostimBrainRegion(dj.Computed):
@@ -109,6 +108,62 @@ class PhotostimBrainRegion(dj.Computed):
 
         self.insert1(dict(key, stim_brain_area=brain_areas[0], stim_laterality=lat))
 
+# --- Fiber photometry Imaging ----
+
+@schema
+class FP_Imaging(dj.Manual):
+    definition = """  # Fiber photometry protocol
+    -> Session
+    FP_Imaging :  smallint  # Fiber photometry number
+    ---
+    -> lab.FiberPhotometryDevice
+    wavelength_1_power : decimal(3,1)  # %
+    wavelength_2_power : decimal(3,1)  # %
+    NDF_ON : bool # The 470nm LED on FP3001 comes with a removable neutral density filter that reduces the output power to ~20% of its original power.
+    isosbestic_power : decimal(3,1)  # %
+    sampling_rate=null: decimal(8,4)   # (Hz)
+    """
+
+    class ImagingLocation(dj.Part): 
+        definition = """ # Location of Fiber Optic Cannula
+        -> master
+        -> lab.SkullReference
+        ap_location: decimal(6, 2) # (um) anterior-posterior; ref is 0; more anterior is more positive
+        ml_location: decimal(6, 2) # (um) medial axis; ref is 0 ; more right is more positive
+        depth:       decimal(6, 2) # (um) manipulator depth relative to surface of the brain (0); more ventral is more negative
+        theta:       decimal(5, 2) # (deg) - elevation - rotation about the ml-axis [0, 180] - w.r.t the z+ axis
+        phi:         decimal(5, 2) # (deg) - azimuth - rotation about the dv-axis [0, 360] - w.r.t the x+ axis
+        ---
+        -> lab.BrainArea           # target brain area for photostim 
+        """
+
+
+@schema
+class FP_ImagingBrainRegion(dj.Computed):
+    definition = """
+    -> FP_Imaging
+    ---
+    -> lab.BrainArea.proj(stim_brain_area='brain_area')
+    FOC_laterality: enum('left', 'right', 'both')
+    """
+
+    def make(self, key):
+        brain_areas, ml_locations = (FP_Imaging.ImagingLocation & key).fetch('brain_area', 'ml_location')
+        ml_locations = ml_locations.astype(float)
+        if len(set(brain_areas)) > 1:
+            raise ValueError('Multiple different brain areas for one fiber photometry  is unsupported')
+        if (ml_locations > 0).any() and (ml_locations < 0).any():
+            lat = 'both'
+        elif (ml_locations > 0).all():
+            lat = 'right'
+        elif (ml_locations < 0).all():
+            lat = 'left'
+        else:
+            assert (ml_locations == 0).all()  # sanity check
+            raise ValueError('Ambiguous hemisphere: ML locations are all 0...')
+
+        self.insert1(dict(key, stim_brain_area=brain_areas[0], stim_laterality=lat))
+        
 
 # ---- Session Trial structure ----
 
