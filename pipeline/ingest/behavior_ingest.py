@@ -23,5 +23,5 @@ class BehaviorIngestion(dj.Imported):
         loader = get_loader()
         sess_dir = (session_ingest.InsertedSession & key).fetch1('sess_data_dir')
         sess_dir = loader.root_data_dir / sess_dir
-        tracking_data = loader.load_behavior(key, sess_dir)
+        behavior_data = loader.load_behavior(key, sess_dir)
         pass
