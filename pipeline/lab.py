@@ -13,7 +13,6 @@ class Lab(dj.Manual):
     institution : varchar(255)  # Institution to which the lab belongs
     """
 
-
 @schema
 class Person(dj.Manual):
     definition = """
@@ -191,10 +190,11 @@ class BrainArea(dj.Lookup):
     ---
     description = null : varchar (4000) # name of the brain area (lab terms, not necessarily in AIBS)
     """
-    contents = [('ALM', 'anterior lateral motor cortex'),
-                ('vS1', 'vibrissal primary somatosensory cortex ("barrel cortex")'),
-                ('Thalamus', 'Thalamus'), ('Medulla', 'Medulla'),
-                ('Striatum', 'Striatum'), ('Midbrain', 'Midbrain')]
+    contents = [('vIRt', 'vibrissa-related intermediate reticular formation'),
+                ('preBotC', 'pre-Boetzinger complex'),
+                ('PrV', 'principal trigeminal nucleus'),
+                ('SpVi', 'spinal trigeminal nucleus pars interpolaris'),
+                ('SC', 'superior colliculus'),]
     
     
 @schema
@@ -284,6 +284,7 @@ class ProbeType(dj.Lookup):
     @property
     def contents(self):
         return zip(['silicon_probe', 'tetrode_array', 'single electrode',
+                    'EMG', 'EEG',
                     'neuropixels 1.0 - 3A', 'neuropixels 1.0 - 3B',
                     'neuropixels 2.0 - SS', 'neuropixels 2.0 - MS'])
 
@@ -375,7 +376,7 @@ class ProbeType(dj.Lookup):
 
 @schema
 class Probe(dj.Lookup):
-    definition = """  # represent a physical probe
+    definition = """  # represents a physical probe
     probe: varchar(32)  # unique identifier for this model of probe (e.g. part number)
     ---
     -> ProbeType
@@ -437,9 +438,29 @@ class PhotostimDevice(dj.Lookup):
     photostim_device_description : varchar(255)
     """
     contents =[
-       ('LaserGem473', 473, 'Laser (Laser Quantum, Gem 473)'),
-       ('LED470', 470, 'LED (Thor Labs, M470F3 - 470 nm, 17.2 mW (Min) Fiber-Coupled LED)'),
-       ('OBIS470', 473, 'OBIS 473nm LX 50mW Laser System: Fiber Pigtail (Coherent Inc)')]
+       ('OptoEngine473', 473, 'DPSS Laser (Opto Engine MBL-FF-473)'),
+       ('OptoEngine470', 470, 'DPSS Laser (Opto Engine MDL-III-470)'),
+       ('OptoEngine561_150', 561, 'DPSS Laser (Opto Engine MGL-FN-561-150mW)'),
+       ('OptoEngine561_100', 561, 'DPSS Laser (Opto Engine MGL-FN-561-100mW)'),
+       ('Cobolt473', 473, 'Diode Laser (Cobolt 06-MLD 473)'),
+       ('Cobolt633', 633, 'Diode Laser (Cobolt 06-MLD 633)'),
+       ('Doric465', 465, 'LED (Doric CLED 465)'),
+       ('Doric595', 595, 'LED (Doric CLED 595)')]
+
+
+@schema
+class FiberPhotometryDevice(dj.Lookup):
+    definition = """
+    fiberphotometry_device  : varchar(20)
+    ---
+    excitation_wavelength_1 :  decimal(5,1)  # (nm) 
+    excitation_wavelength_2 :  decimal(5,1)  # (nm) 
+    isosbestic_wavelength : decimal(5,1)  # (nm) 
+    photostim_device_description : varchar(255)
+    """
+    contents =[
+       ('FP3001', 560, 470, 415, 'Neurophotometrics FP3001'),
+       ('R801', 560, 470, 410, 'RWD R801')]
 
 
 @schema
