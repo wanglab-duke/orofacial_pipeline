@@ -18,11 +18,13 @@ class TrackingDevice(dj.Lookup):
     definition = """
     tracking_device:                    varchar(20)     # device type/function
     ---
+    tracking_position:                  varchar(20)     # device position
     sampling_rate:                      decimal(8, 4)   # sampling rate (Hz)
     tracking_device_description:        varchar(100)    # device description
     """
 
-    contents = []
+    contents = [('WT_Camera_Vincent 0', 'top', 1/0.002, 'Basler acA640-750um camera with Fujinon HF25HA-1B lense'),
+                ('Rotary encoder 0', 'wheel', 1000, 'US Digital H5 Ball Bearing Optical Shaft Encoder')]
 
 
 @schema

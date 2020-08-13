@@ -13,7 +13,6 @@ class Lab(dj.Manual):
     institution : varchar(255)  # Institution to which the lab belongs
     """
 
-
 @schema
 class Person(dj.Manual):
     definition = """
@@ -191,10 +190,11 @@ class BrainArea(dj.Lookup):
     ---
     description = null : varchar (4000) # name of the brain area (lab terms, not necessarily in AIBS)
     """
-    contents = [('ALM', 'anterior lateral motor cortex'),
-                ('vS1', 'vibrissal primary somatosensory cortex ("barrel cortex")'),
-                ('Thalamus', 'Thalamus'), ('Medulla', 'Medulla'),
-                ('Striatum', 'Striatum'), ('Midbrain', 'Midbrain')]
+    contents = [('vIRt', 'vibrissa-related intermediate reticular formation'),
+                ('preBotC', 'pre-Boetzinger complex'),
+                ('PrV', 'principal trigeminal nucleus'),
+                ('SpVi', 'spinal trigeminal nucleus pars interpolaris'),
+                ('SC', 'superior colliculus'),]
     
     
 @schema
@@ -284,6 +284,7 @@ class ProbeType(dj.Lookup):
     @property
     def contents(self):
         return zip(['silicon_probe', 'tetrode_array', 'single electrode',
+                    'EMG', 'EEG',
                     'neuropixels 1.0 - 3A', 'neuropixels 1.0 - 3B',
                     'neuropixels 2.0 - SS', 'neuropixels 2.0 - MS'])
 
@@ -375,7 +376,7 @@ class ProbeType(dj.Lookup):
 
 @schema
 class Probe(dj.Lookup):
-    definition = """  # represent a physical probe
+    definition = """  # represents a physical probe
     probe: varchar(32)  # unique identifier for this model of probe (e.g. part number)
     ---
     -> ProbeType

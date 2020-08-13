@@ -163,7 +163,7 @@ class FP_ImagingBrainRegion(dj.Computed):
             raise ValueError('Ambiguous hemisphere: ML locations are all 0...')
 
         self.insert1(dict(key, stim_brain_area=brain_areas[0], stim_laterality=lat))
-        
+
 
 # ---- Session Trial structure ----
 
@@ -348,4 +348,5 @@ class Project(dj.Lookup):
     publication='': varchar(256)  # e.g. publication doi    
     """
 
-    contents = [('orofacial', 'The Orofacial experiment', '')]
+    contents = [('vIRt', 'rhythmic whisking premotor circuits', ''),
+                ('trigeminal', 'whisker touch brainstem neurophysiology', '')]
