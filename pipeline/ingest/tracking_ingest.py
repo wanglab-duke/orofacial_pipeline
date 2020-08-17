@@ -8,12 +8,12 @@ schema = dj.schema(get_schema_name('ingestion'))
 
 
 @schema
-class BehaviorIngestion(dj.Imported):
+class TrackingIngestion(dj.Imported):
     definition = """
     -> session_ingest.InsertedSession
     """
 
-    class BehaviorFile(dj.Part):
+    class TrackingFile(dj.Part):
         definition = """  # file(s) associated with a session
         -> master
         filepath: varchar(255)  # relative filepath with respect to root data directory
@@ -23,5 +23,6 @@ class BehaviorIngestion(dj.Imported):
         loader = get_loader()
         sess_dir = (session_ingest.InsertedSession & key).fetch1('sess_data_dir')
         sess_dir = loader.root_data_dir / sess_dir
-        behavior_data = loader.load_behavior(key, sess_dir)
+        tracking_data = loader.load_tracking(key, sess_dir)
         pass
+

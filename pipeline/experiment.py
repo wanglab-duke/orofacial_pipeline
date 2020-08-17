@@ -111,10 +111,9 @@ class PhotostimBrainRegion(dj.Computed):
 # --- Fiber photometry Imaging ----
 
 @schema
-class FP_Imaging(dj.Manual):
+class FPImaging(dj.Manual):
     definition = """  # Fiber photometry protocol
     -> Session
-    FP_Imaging :  smallint  # Fiber photometry number
     ---
     -> lab.FiberPhotometryDevice
     wavelength_1_power : decimal(3,1)  # %
@@ -134,21 +133,21 @@ class FP_Imaging(dj.Manual):
         theta:       decimal(5, 2) # (deg) - elevation - rotation about the ml-axis [0, 180] - w.r.t the z+ axis
         phi:         decimal(5, 2) # (deg) - azimuth - rotation about the dv-axis [0, 360] - w.r.t the x+ axis
         ---
-        -> lab.BrainArea           # target brain area for photostim 
+        -> lab.BrainArea           # target brain area for FP imaging 
         """
 
 
 @schema
-class FP_ImagingBrainRegion(dj.Computed):
+class FPImagingBrainRegion(dj.Computed):
     definition = """
     -> FP_Imaging
     ---
-    -> lab.BrainArea.proj(stim_brain_area='brain_area')
+    -> lab.BrainArea.proj(FP_brain_area='brain_area')
     FOC_laterality: enum('left', 'right', 'both')
     """
 
     def make(self, key):
-        brain_areas, ml_locations = (FP_Imaging.ImagingLocation & key).fetch('brain_area', 'ml_location')
+        brain_areas, ml_locations = (FPImaging.ImagingLocation & key).fetch('brain_area', 'ml_location')
         ml_locations = ml_locations.astype(float)
         if len(set(brain_areas)) > 1:
             raise ValueError('Multiple different brain areas for one fiber photometry  is unsupported')
@@ -162,7 +161,7 @@ class FP_ImagingBrainRegion(dj.Computed):
             assert (ml_locations == 0).all()  # sanity check
             raise ValueError('Ambiguous hemisphere: ML locations are all 0...')
 
-        self.insert1(dict(key, stim_brain_area=brain_areas[0], stim_laterality=lat))
+        self.insert1(dict(key, FP_brain_area=brain_areas[0], FOC_laterality=lat))
 
 
 # ---- Session Trial structure ----
