@@ -108,6 +108,7 @@ class PhotostimBrainRegion(dj.Computed):
 
         self.insert1(dict(key, stim_brain_area=brain_areas[0], stim_laterality=lat))
 
+
 # --- Fiber photometry Imaging ----
 
 @schema
@@ -116,10 +117,10 @@ class FPImaging(dj.Manual):
     -> Session
     ---
     -> lab.FiberPhotometryDevice
-    wavelength_1_power : decimal(3,1)  # %
-    wavelength_2_power : decimal(3,1)  # %
-    NDF_ON : bool # The 470nm LED on FP3001 comes with a removable neutral density filter that reduces the output power to ~20% of its original power.
-    isosbestic_power : decimal(3,1)  # %
+    wavelength_1_power : decimal(3,1)  # (percent)
+    wavelength_2_power : decimal(3,1)  # (percent)
+    ndf_on : bool # The 470nm LED on FP3001 comes with a removable neutral density filter that reduces the output power to ~20percent of its original power
+    isosbestic_power : decimal(3,1)    # (percent)
     sampling_rate=null: decimal(8,4)   # (Hz)
     """
 
@@ -140,10 +141,10 @@ class FPImaging(dj.Manual):
 @schema
 class FPImagingBrainRegion(dj.Computed):
     definition = """
-    -> FP_Imaging
+    -> FPImaging
     ---
-    -> lab.BrainArea.proj(FP_brain_area='brain_area')
-    FOC_laterality: enum('left', 'right', 'both')
+    -> lab.BrainArea.proj(fp_brain_area='brain_area')
+    foc_laterality: enum('left', 'right', 'both')
     """
 
     def make(self, key):
