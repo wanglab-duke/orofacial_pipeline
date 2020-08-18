@@ -25,7 +25,13 @@ Template for `dj_local_conf.json`
         "data_root_dir": "D:/data",
         "session_loader_class": "VincentLoader",
         "username": "username",
-        "rig": "rig1"
+        "rig": "rig1",
+        "ccf_data_paths": {
+            "version_name": "CCF_2017",
+            "region_csv": "D:/atlas/mousebrainontology_2.csv",
+            "hexcode_csv": "D:/atlas/hexcode.csv",
+            "annotation_tif": "D:/atlas/Annotation_new_10_ds222_32bit.tif"
+        }
     }
 }
 ```
