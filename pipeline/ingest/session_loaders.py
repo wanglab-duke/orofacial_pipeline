@@ -39,10 +39,10 @@ class VincentLoader:
             raise FileNotFoundError(f'{subj_dir} not found!')
 
         # assuming the ".avi" file must exist - find all .avi - each represents one session
-        all_sess_avi = list(subj_dir.rglob(f'{subject_name}_*.avi'))
+        all_sess_timecsv = list(subj_dir.rglob(f'{subject_name}_*FrameTime.csv'))
 
         # ---- detail parsing of the avi filename for further information:
-        for f in all_sess_avi:
+        for f in all_sess_timecsv:
             match = re.search('_(\d{8}-\d{6})_', f.name)
             # find datetime string in avi name - assuming format: %Y%m%d-%H%M%S
             sess_datetime = datetime.strptime(match.groups()[0], '%Y%m%d-%H%M%S')
