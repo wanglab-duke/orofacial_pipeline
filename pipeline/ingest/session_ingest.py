@@ -52,7 +52,11 @@ def load_all_sessions(subject_id):
 
         experiment.Session.insert1(sess_key)
         InsertedSession.insert1({**sess_key,
-                                 'loader_method': loader.loader_name,
-                                 'sess_data_dir': session_files[0].parent.as_posix()}, allow_direct_insert=True)
-        InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f.as_posix()} for f in session_files], allow_direct_insert=True)
+                                'loader_method': loader.loader_name,
+                                'sess_data_dir': session_files[0].parent.as_posix()},
+                                allow_direct_insert=True, ignore_extra_fields=True)
+        InsertedSession.SessionFile.insert([{**sess_key,
+                                             'filepath': f.as_posix()} for f in session_files],
+                                           allow_direct_insert=True,
+                                           ignore_extra_fields=True)
 
