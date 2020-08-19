@@ -469,7 +469,7 @@ class DataAcquisitionDevice(dj.Lookup):
     data_acquisition_device  : varchar(20)
     ---
     device_type  : varchar(30)
-    adc = null : decimal(5,3)  # μV per bit resolution analog to digital conversion. ADC may occur on headstage for digital ephys systems 
+    adc = null : float  # μV per bit resolution analog to digital conversion. ADC may occur on headstage for digital ephys systems 
     device_description : varchar(255)
     """
     contents =[
