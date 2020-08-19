@@ -383,6 +383,7 @@ class Probe(dj.Lookup):
     probe_comment='' :  varchar(1000)
     """
 
+
 @schema
 class Adapter(dj.Lookup):
     definition = """
@@ -392,6 +393,7 @@ class Adapter(dj.Lookup):
     desc_image=null: longblob #Adapter specs, including connector mapping
     """
 
+
 @schema
 class Headstage(dj.Lookup):
     definition = """
@@ -400,6 +402,7 @@ class Headstage(dj.Lookup):
     desc: varchar(1000)
     desc_image=null: longblob #Headstage specs, including connector mapping
     """
+
 
 @schema
 class ElectrodeConfig(dj.Lookup):
@@ -457,9 +460,8 @@ class FiberPhotometryDevice(dj.Lookup):
     isosbestic_wavelength : decimal(5,1)  # (nm) 
     photostim_device_description : varchar(255)
     """
-    contents =[
-       ('FP3001', 560, 470, 415, 'Neurophotometrics FP3001'),
-       ('R801', 560, 470, 410, 'RWD R801')]
+    contents = [('FP3001', 560, 470, 415, 'Neurophotometrics FP3001'),
+                ('R801', 560, 470, 410, 'RWD R801')]
 
 @schema
 class DataAcquisitionDevice(dj.Lookup):

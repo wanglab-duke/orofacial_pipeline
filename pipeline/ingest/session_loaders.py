@@ -19,7 +19,7 @@ Any loader class must have the following interfaces:
             + rig: the rig the session performed on (i.e. "rig" in lab.Rig)
             + session_files: list of associated files (relative path with respect to the root data directory)
 
-    `load_session_details` function:
+    `load_behavior` function:
         Input:
         Output:
             
@@ -30,10 +30,11 @@ class VincentLoader:
 
     def __init__(self, root_data_dir, config={}):
         self.config = config
-        self.root_data_dir = root_data_dir
+        self.root_data_dir = pathlib.Path(root_data_dir)
+        self.loader_name = self.__class__.__name__
 
     def load_sessions(self, subject_name):
-        subj_dir = pathlib.Path(self.root_data_dir) / subject_name
+        subj_dir = self.root_data_dir / subject_name
         if not subj_dir.exists():
             raise FileNotFoundError(f'{subj_dir} not found!')
 
@@ -58,5 +59,11 @@ class VincentLoader:
                    'username': self.config['custom']['username'],
                    'rig': self.config['custom']['rig']}
 
-    def load_session_details(self):
+    def load_behavior(self):
+        pass
+
+    def load_tracking(self):
+        pass
+
+    def load_ephys(self):
         pass
