@@ -1,6 +1,7 @@
 import pathlib
 import numpy as np
 import re
+import json
 from datetime import datetime
 
 """
@@ -38,19 +39,19 @@ class VincentLoader:
         if not subj_dir.exists():
             raise FileNotFoundError(f'{subj_dir} not found!')
 
-        # assuming the ".avi" file must exist - find all .avi - each represents one session
-        all_sess_avi = list(subj_dir.rglob(f'{subject_name}_*.avi'))
+        # find all 'Analysis' folders, which contain the processed files for each session
+        all_sessions = list(subj_dir.rglob('**/*info.json'))
 
-        # ---- detail parsing of the avi filename for further information:
-        for f in all_sess_avi:
-            match = re.search('_(\d{8}-\d{6})_', f.name)
-            # find datetime string in avi name - assuming format: %Y%m%d-%H%M%S
-            sess_datetime = datetime.strptime(match.groups()[0], '%Y%m%d-%H%M%S')
+        # ---- parse processed data folders:
+        for sess in all_sessions:
+            with open(sess.absolute()) as f:
+                sessinfo = json.load(f)
+            sess_datetime = datetime.strptime(sessinfo['date'], '%d-%b-%Y %H:%M:%S')
             # find the basename of the other related files for this session
-            date_dir = f.parent
-            base_str = f.name[:match.span()[0]]
+            data_dir = sess.parent
             # find all associated files
-            session_files = [f.relative_to(self.root_data_dir) for f in date_dir.glob(f'{base_str}*')]
+            session_files = [sess.relative_to(self.root_data_dir)
+                             for sess in data_dir.glob(f'{data_dir.name}*')]
 
             yield {'subject_id': subject_name,
                    'session_date': sess_datetime.date(),
