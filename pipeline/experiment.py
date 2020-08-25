@@ -14,7 +14,7 @@ class Session(dj.Manual):
     session: smallint 		# session number 
     ---
     session_date: date
-    session_time: time  # t=0 is the start of the data acquisition from the master device (typically with the highest sampling rate, e.g., ephys acquisition device)
+    session_time: time  # computer time for t=0. This is the start of the data acquisition from the master device (typically with the highest sampling rate, e.g., ephys acquisition device)
     unique index (subject_id, session_date, session_time)
     -> lab.Person
     -> lab.Rig

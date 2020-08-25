@@ -450,7 +450,6 @@ class PhotostimDevice(dj.Lookup):
        ('Doric465', 465, 'LED (Doric CLED 465)'),
        ('Doric595', 595, 'LED (Doric CLED 595)')]
 
-
 @schema
 class FiberPhotometryDevice(dj.Lookup):
     definition = """
@@ -464,6 +463,38 @@ class FiberPhotometryDevice(dj.Lookup):
     contents = [('FP3001', 560, 470, 415, 'Neurophotometrics FP3001'),
                 ('R801', 560, 470, 410, 'RWD R801')]
 
+@schema
+class DataAcquisitionDevice(dj.Lookup):
+    definition = """
+    data_acquisition_device  : varchar(20)
+    ---
+    device_type  : varchar(30)
+    adc = null : float  # μV per bit resolution analog to digital conversion. ADC may occur on headstage for digital ephys systems 
+    device_description : varchar(255)
+    """
+    contents =[
+       ('CereplexDirect', 'Data acquisition system', 0.25, 'Blackrock Microsystems Cereplex Direct'),
+       ('Neuropixels', 'Data acquisition system', 9.765, 'Neuropixels Control System with PXIe interface'), #See https://www.neuropixels.org/control-system
+       ('Intan', 'Data acquisition system', 0.195, 'Intan RHD2000 series Recording Controller'), #See http://www.intantech.com/files/Intan_RHD2000_series_datasheet.pdf p.6
+       ('OpenEphys', 'Data acquisition system', 0.195, 'Open Ephys acquisition board'),
+       ('LJT4_HV', 'DAQ device', 4882.8, 'LabJack T4 high voltage analog inputs'),
+       ('LJT4_LV', 'DAQ device', 610.35, 'LabJack T4 low voltage analog inputs'),
+       ('NI_USB_6212', 'DAQ device', 5.2, '16-bit NIDAQ low voltage input setting'),
+       ('Mega2560', 'Arduino microcontroller', None, 'Arduino Mega 2560 Rev3'),
+       ('Uno', 'Arduino microcontroller', None, 'Arduino Uno')]
+
+@schema
+class AnalogAmps(dj.Lookup):
+    definition = """
+    analog_amplifier  : varchar(20)
+    ---
+    device_type  : varchar(30)
+    device_description : varchar(255)
+    """
+    contents =[
+       ('AMS1800', 'Differential amplifier', 'A-M Systems Model 1800'),
+       ('DAM80', 'Differential amplifier', 'WPI DAM80'),
+       ('LJTIA', 'Differential amplifier', 'LabJack LJTick-InAmp')] #https://labjack.com/accessories/ljtick-inamp
 
 @schema
 class Whisker(dj.Lookup):
