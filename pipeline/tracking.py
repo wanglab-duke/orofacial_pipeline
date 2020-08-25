@@ -79,6 +79,13 @@ class Tracking(dj.Imported):
         tip_y:         longblob  # tip position: y (px)
         """
 
+    @property
+    def tracking_features(self):
+        return {'PositionTracking': Tracking.PositionTracking,
+                'ObjectTracking': Tracking.ObjectTracking,
+                'ObjectPoint': Tracking.ObjectPoint,
+                'WhiskerTracking': Tracking.WhiskerTracking}
+
 
 @schema
 class TrackedWhisker(dj.Manual):
