@@ -1,6 +1,6 @@
 import datajoint as dj
 
-from pipeline.ingest import session_loaders
+from pipeline.ingest import loaders
 
 
 # ============== SETUP the LOADER ==================
@@ -16,9 +16,9 @@ def get_loader():
     except KeyError:
         raise KeyError('Unspecified session loader method! Please specify "session_loader_method" under dj.config["custom"]')
 
-    if session_loader_class in dir(session_loaders):
+    if session_loader_class in dir(loaders):
         # instantiate a loader class with "data_dir" and "config" (optional)
-        loader_class = getattr(session_loaders, session_loader_class)
+        loader_class = getattr(loaders, session_loader_class)
     else:
         raise RuntimeError(f'Unknown session loading function: {session_loader_class}')
 
