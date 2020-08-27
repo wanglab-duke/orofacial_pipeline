@@ -28,6 +28,16 @@ class TrackingDevice(dj.Lookup):
 
 
 @schema
+class RigDevice(dj.Lookup):
+    definition = """
+    -> lab.Rig
+    -> TrackingDevice
+    """
+
+    contents = []
+
+
+@schema
 class Tracking(dj.Imported):
     definition = """
     -> experiment.Session
@@ -78,6 +88,13 @@ class Tracking(dj.Imported):
         tip_x:         longblob  # tip position: x (px)
         tip_y:         longblob  # tip position: y (px)
         """
+
+    @property
+    def tracking_features(self):
+        return {'PositionTracking': Tracking.PositionTracking,
+                'ObjectTracking': Tracking.ObjectTracking,
+                'ObjectPoint': Tracking.ObjectPoint,
+                'WhiskerTracking': Tracking.WhiskerTracking}
 
 
 @schema

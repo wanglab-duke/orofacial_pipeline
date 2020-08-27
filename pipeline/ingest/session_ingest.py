@@ -1,4 +1,5 @@
 import datajoint as dj
+import logging
 
 from pipeline import lab, experiment
 from pipeline import get_schema_name
@@ -6,6 +7,9 @@ from pipeline.ingest import get_loader
 
 schema = dj.schema(get_schema_name('ingestion'))
 
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 # ============== SESSION INGESTION ==================
 
@@ -40,7 +44,7 @@ def load_all_sessions(subject_id):
         session_files = sess.pop('session_files')
 
         if experiment.Session & sess:
-            print(f'Session {sess} already exists. Skipping...')
+            log.info(f'Session {sess} already exists. Skipping...')
             continue
 
         # ---- synthesize session number ----
@@ -50,13 +54,13 @@ def load_all_sessions(subject_id):
         # ---- insert ----
         sess_key = {**sess, 'session': sess_num}
 
-        experiment.Session.insert1(sess_key)
-        InsertedSession.insert1({**sess_key,
-                                'loader_method': loader.loader_name,
-                                'sess_data_dir': session_files[0].parent.as_posix()},
-                                allow_direct_insert=True, ignore_extra_fields=True)
-        InsertedSession.SessionFile.insert([{**sess_key,
-                                             'filepath': f.as_posix()} for f in session_files],
-                                           allow_direct_insert=True,
-                                           ignore_extra_fields=True)
+        with dj.conn().transaction:
+            experiment.Session.insert1(sess_key)
+            InsertedSession.insert1({**sess_key,
+                                     'loader_method': loader.loader_name,
+                                     'sess_data_dir': session_files[0].parent.as_posix()},
+                                    allow_direct_insert=True, ignore_extra_fields=True)
+            InsertedSession.SessionFile.insert([{**sess_key, 'filepath': f.as_posix()} for f in session_files],
+                                               allow_direct_insert=True, ignore_extra_fields=True)
+            log.info(f'Inserted new session: {sess}')
 
