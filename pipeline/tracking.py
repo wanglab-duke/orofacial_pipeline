@@ -28,6 +28,16 @@ class TrackingDevice(dj.Lookup):
 
 
 @schema
+class RigDevice(dj.Lookup):
+    definition = """
+    -> lab.Rig
+    -> TrackingDevice
+    """
+
+    contents = []
+
+
+@schema
 class Tracking(dj.Imported):
     definition = """
     -> experiment.Session

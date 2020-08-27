@@ -36,28 +36,35 @@ class TrackingIngestion(dj.Imported):
         session_dir = loader.root_data_dir / session_dir
         session_datetime = (experiment.Session & key).proj(
             session_datetime="cast(concat(session_date, ' ', session_time) as datetime)").fetch1('session_datetime')
-        tracking_data = loader.load_tracking(key, session_dir, key['subject_id'], session_datetime)
 
-        # ---- extract information from the imported data (from loader class) ----
-        tracking_files = tracking_data.pop('tracking_files')
-        part_tbl_data = {tbl_name: tracking_data.pop(tbl_name)
-                         for tbl_name in tracking.Tracking.tracking_features if tbl_name in tracking_data}
+        # Idea: from the rig for this session, fetch the tracking device(s) to be used in "load_tracking"
+        # e.g.: tracking_devices = (tracking.RigDevice * experiment.Session & key).fetch()
 
-        # ---- insert to relevant tracking tables ----
+        # Expecting the "loader.load_tracking()" method to return a list of dictionary
+        # each member dict represents tracking data for one tracking device
+        all_tracking_data = loader.load_tracking(key, session_dir, key['subject_id'], session_datetime)
+
+        tracking_files = []
         with dj.conn().transaction:
-            # insert to the main Tracking
-            tracking.Tracking.insert1({**key, **tracking_data}, allow_direct_insert=True, ignore_extra_fields=True)
-            # insert to the Tracking part-tables (different tracked features)
-            for tbl_name, tbl_data in part_tbl_data.items():
-                part_tbl = tracking.Tracking.tracking_features[tbl_name]
-                if isinstance(tbl_data, dict):
-                    part_tbl.insert1({**key, **tracking_data, **tbl_data}, allow_direct_insert=True, ignore_extra_fields=True)
-                elif isinstance(tbl_data, list):
-                    part_tbl.insert([{**key, **tracking_data, **d} for d in tbl_data], allow_direct_insert=True, ignore_extra_fields=True)
+            for tracking_data in all_tracking_data:
+                # ---- extract information from the imported data (from loader class) ----
+                tracking_files.append(tracking_data.pop('tracking_files'))
+                part_tbl_data = {tbl_name: tracking_data.pop(tbl_name)
+                                 for tbl_name in tracking.Tracking.tracking_features if tbl_name in tracking_data}
+
+                # ---- insert to relevant tracking tables ----
+                # insert to the main Tracking
+                tracking.Tracking.insert1({**key, **tracking_data}, allow_direct_insert=True, ignore_extra_fields=True)
+                # insert to the Tracking part-tables (different tracked features)
+                for tbl_name, tbl_data in part_tbl_data.items():
+                    part_tbl = tracking.Tracking.tracking_features[tbl_name]
+                    if isinstance(tbl_data, dict):
+                        part_tbl.insert1({**key, **tracking_data, **tbl_data}, allow_direct_insert=True, ignore_extra_fields=True)
+                    elif isinstance(tbl_data, list):
+                        part_tbl.insert([{**key, **tracking_data, **d} for d in tbl_data], allow_direct_insert=True, ignore_extra_fields=True)
+
             # insert into self
             self.insert1(key)
             self.TrackingFile.insert([{**key, 'filepath': f.as_posix()} for f in tracking_files],
                                      allow_direct_insert=True, ignore_extra_fields=True)
             log.info(f'Inserted tracking for: {key}')
-
-
