@@ -1,11 +1,12 @@
 import pathlib
-import numpy as np
 import re
 import json
 from datetime import datetime
+import scipy.io as spio
+import numpy as np
 
 """
-This module houses all loader classes for loading sessions' behavioral data
+This module houses a LoaderClass for Vincent's data format
 Any loader class must have the following interfaces:
 
     `load_sessions` function:
@@ -28,6 +29,9 @@ Any loader class must have the following interfaces:
 
 
 class VincentLoader:
+
+    tracking_camera = 'WT_Camera_Vincent 0'
+    tracking_fps = 500
 
     def __init__(self, root_data_dir, config={}):
         self.config = config
@@ -63,8 +67,48 @@ class VincentLoader:
     def load_behavior(self):
         pass
 
-    def load_tracking(self):
-        pass
+    def load_tracking(self, session_dir, subject_name, session_datetime):
+
+        # ---- identify the .mat file for tracking data ----
+        tracking_dir = session_dir / 'WhiskerTracking'
+        if not tracking_dir.exists():
+            raise FileNotFoundError(f'{tracking_dir} not found!')
+        datetime_str = datetime.strftime(session_datetime, '%Y%m%d%H%M%S')
+
+        tracking_fp = list(tracking_dir.glob(f'{subject_name}*{datetime_str}*.mat'))
+
+        if len(tracking_fp) != 1:
+            raise FileNotFoundError(f'Unable to find tracking .mat - Found: {tracking_fp}')
+        else:
+            tracking_fp = tracking_fp[0]
+
+        # ---- load .mat and extract whisker data ----
+        trk_mat = spio.loadmat(tracking_fp, struct_as_record=False, squeeze_me=True)[tracking_fp.stem]
+
+        frames = np.arange(max(trk_mat.fid) + 1)  # frame number with respect to tracking
+
+        whisker_inds = np.unique(trk_mat.wid)
+        whiskers = {wid: {} for wid in whisker_inds}
+        for wid in whisker_inds:
+            matched_wid = trk_mat.wid == wid
+            matched_fid = trk_mat.fid[matched_wid]
+            _, matched_frame_idx, _ = np.intersect1d(matched_fid, frames, return_indices=True)
+
+            for var in ('follicle_x', 'follicle_y', 'angle'):
+                d = np.full(len(frames), np.nan)
+                d[matched_frame_idx] = getattr(trk_mat, var)[matched_wid]
+                whiskers[wid][var] = d
+
+        # ---- Time sync ----
+        # TODO: any time synchronization here
+        # ---- return ----
+        # Return a list of dictionary
+        # each member dict represents tracking data for one tracking device
+
+        return [{'tracking_device': self.tracking_camera,
+                 'tracking_timestamps': frames / self.fps,
+                 'tracking_files': [tracking_fp.relative_to(self.root_data_dir)],
+                 'WhiskerTracking': [{'whisker_idx': wid, **wdata} for wid, wdata in whiskers.items()]}]
 
     def load_ephys(self):
         pass
