@@ -6,6 +6,8 @@ from pipeline.ingest import session_ingest, get_loader
 
 schema = dj.schema(get_schema_name('ingestion'))
 
+loader = get_loader()
+
 
 @schema
 class EphysIngestion(dj.Imported):
@@ -31,12 +33,15 @@ class EphysIngestion(dj.Imported):
         + Unit and Unit.Waveform
         + PhotoTaggedUnit (if applicable)
         """
-        loader = get_loader()
-        sess_dir = (session_ingest.InsertedSession & key).fetch1('sess_data_dir')
-        sess_dir = loader.root_data_dir / sess_dir
-        ephys_data = loader.load_ephys(key, sess_dir)
+        # ---- call loader ----
+        session_dir = (session_ingest.InsertedSession & key).fetch1('sess_data_dir')
+        session_dir = loader.root_data_dir / session_dir
+        session_datetime = (experiment.Session & key).proj(
+            session_datetime="cast(concat(session_date, ' ', session_time) as datetime)").fetch1('session_datetime')
 
-        # iterate through each probe, insert data into relevant tables (see docstring)
-        for probe_data in ephys_data:
-            # parse and insert data
-            pass
+        # Expecting the "loader.load_ephys()" method to return a list of dictionary
+        # each member dict represents ephys data from one probe
+        all_ephys_data = loader.load_ephys(key, session_dir, key['subject_id'], session_datetime)
+
+        # DO the table insert
+        pass
