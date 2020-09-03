@@ -4,6 +4,11 @@ import json
 from datetime import datetime
 import scipy.io as spio
 import numpy as np
+import h5py
+import ast
+
+from .jrclust import JRCLUST
+
 
 """
 This module houses a LoaderClass for Vincent's data format
@@ -110,5 +115,75 @@ class VincentLoader:
                  'tracking_files': [tracking_fp.relative_to(self.root_data_dir)],
                  'WhiskerTracking': [{'whisker_idx': wid, **wdata} for wid, wdata in whiskers.items()]}]
 
-    def load_ephys(self):
-        pass
+    def load_ephys(self, session_dir, subject_name, session_datetime):
+        datetime_str = datetime.strftime(session_datetime, '%Y%m%d%H%M%S')
+
+        analysis_dir = session_dir / 'Analysis' / f'{subject_name}_{datetime_str}'
+        if not analysis_dir.exists():
+            raise FileNotFoundError(f'{analysis_dir} not found!')
+
+        # Expect 3 files per probe: .spikes.mat; recInfo.mat; .prb
+        # As an example, only expect one probe per session
+        jrclust_fp = list(analysis_dir.glob('*.spikes.mat'))
+        recinfo_fp = list(analysis_dir.glob('*recInfo.mat'))
+        prb_adaptor_fp = list(analysis_dir.glob('*.prb'))
+
+        if len(jrclust_fp) != 1:
+            raise FileNotFoundError(f'Unable to find one JRCLUST file - Found: {jrclust_fp}')
+        if len(recinfo_fp) != 1:
+            raise FileNotFoundError(f'Unable to find one Recording Info file - Found: {recinfo_fp}')
+        if len(prb_adaptor_fp) != 1:
+            raise FileNotFoundError(f'Unable to find one Probe Adapter file - Found: {prb_adaptor_fp}')
+
+        recInfo = {}
+        with h5py.File(str(recinfo_fp[0]), mode='r') as f:  # ephys file
+            info = f['recInfo']
+            recInfo['fs'] = info['samplingRate'][0][0]
+            recInfo['channel_num'] = info['numRecChan'][0][0]
+
+            rec_date = str().join(chr(c) for c in info['date'])
+            recInfo['recording_time'] = datetime.strptime(rec_date, '%d_%b_%Y_%H_%M_%S')
+            recInfo['recording_system'] = str().join(chr(c) for c in info['sys'])
+
+        adapter = {}
+        with open(prb_adaptor_fp[0], mode='r') as f:
+            for line in f.readlines():
+                if line.startswith('%') or line.startswith('\n'):
+                    continue
+                split_vals = line.split('=')
+                k = split_vals[0]
+                v = split_vals[1]
+                try:
+                    v_str = re.match('\[.*\]', v.strip()).group()
+                    adapter[k.strip()] = ast.literal_eval(v_str.replace(' ', ','))
+                except:
+                    adapter[k.strip()] = v.strip()
+
+        channel_map = np.array(adapter['channels'])
+
+        # read JRCLUST results
+        jrclust = JRCLUST(jrclust_fp[0])
+
+        # probe type
+        probe_type, _, adapter_type = prb_adaptor_fp[0].stem.split('_')
+
+        probe_data = {'probe_type': probe_type,
+                      'sampling_rate': recInfo['fs'],
+                      'channel_num': recInfo['channel_num'],
+                      'recording_time': recInfo['recording_time'],
+                      'recording_system': recInfo['recording_system'],
+                      'clustering_method': jrclust.JRCLUST_version,
+                      'unit': jrclust.data['units'],
+                      'unit_quality': jrclust.data['unit_notes'],
+                      'electrode': channel_map[jrclust.data['vmax_unit_site']-1],
+                      'unit_posx': jrclust.data['unit_xpos'],
+                      'unit_posy': jrclust.data['unit_ypos'],
+                      'spike_times': jrclust.data['spikes'],
+                      'spike_sites': jrclust.data['spike_sites'],
+                      'spike_depths': jrclust.data['spike_depths'],
+                      'unit_amp': jrclust.data['unit_amp'],
+                      'unit_snr': jrclust.data['unit_snr'],
+                      'waveform': jrclust.data['unit_wav']  # (unit x channel x sample)
+                      }
+
+        return [probe_data]  # return a list of dictionary, one for data from one probe

@@ -55,6 +55,7 @@ class ProbeInsertion(dj.Manual):
         sampling_rate: int  # (Hz)
         """
 
+
 @schema
 class LFP(dj.Imported):
     definition = """

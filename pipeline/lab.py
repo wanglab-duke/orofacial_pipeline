@@ -426,7 +426,7 @@ class ElectrodeConfig(dj.Lookup):
         -> master.ElectrodeGroup
         -> ProbeType.Electrode
         ---
-        is_used: bool  # is this channel used for spatial average (ref channels are by default not used)
+        is_used=null: bool  # is this channel used for spatial average (ref channels are by default not used)
         """
 
 
@@ -463,6 +463,7 @@ class FiberPhotometryDevice(dj.Lookup):
     contents = [('FP3001', 560, 470, 415, 'Neurophotometrics FP3001'),
                 ('R801', 560, 470, 410, 'RWD R801')]
 
+
 @schema
 class DataAcquisitionDevice(dj.Lookup):
     definition = """
@@ -483,6 +484,7 @@ class DataAcquisitionDevice(dj.Lookup):
        ('Mega2560', 'Arduino microcontroller', None, 'Arduino Mega 2560 Rev3'),
        ('Uno', 'Arduino microcontroller', None, 'Arduino Uno')]
 
+
 @schema
 class AnalogAmps(dj.Lookup):
     definition = """
@@ -495,6 +497,7 @@ class AnalogAmps(dj.Lookup):
        ('AMS1800', 'Differential amplifier', 'A-M Systems Model 1800'),
        ('DAM80', 'Differential amplifier', 'WPI DAM80'),
        ('LJTIA', 'Differential amplifier', 'LabJack LJTick-InAmp')] #https://labjack.com/accessories/ljtick-inamp
+
 
 @schema
 class Whisker(dj.Lookup):
