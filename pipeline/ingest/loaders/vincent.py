@@ -61,6 +61,8 @@ class VincentLoader:
             with open(sess.absolute()) as f:
                 sessinfo = json.load(f)
             sess_datetime = datetime.strptime(sessinfo['date'], '%d-%b-%Y %H:%M:%S')
+            sess_day = sessinfo['day'] # not 100% needed, can be retrieved from sess_datetime, but might be convenient
+            sess_ref = sessinfo['ref']
             # find the basename of the other related files for this session
             data_dir = sess.parent
             # find all associated files
@@ -70,6 +72,7 @@ class VincentLoader:
             yield {'subject_id': subject_name,
                    'session_date': sess_datetime.date(),
                    'session_time': sess_datetime.time(),
+                   'session_ref': sess_ref(),
                    'session_files': session_files,
                    'username': self.config['custom']['username'],
                    'rig': self.config['custom']['rig']}

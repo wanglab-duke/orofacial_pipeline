@@ -16,6 +16,7 @@ class Session(dj.Manual):
     session_date: date
     session_time: time  # computer time for t=0. This is the start of the data acquisition from the master device (typically with the highest sampling rate, e.g., ephys acquisition device)
     unique index (subject_id, session_date, session_time)
+    session_ref: varchar(24) # short id for referencing files easily within a recording (unique only to that recording day)
     -> lab.Person
     -> lab.Rig
     """
