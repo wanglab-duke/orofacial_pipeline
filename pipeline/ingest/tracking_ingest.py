@@ -54,14 +54,17 @@ class TrackingIngestion(dj.Imported):
 
                 # ---- insert to relevant tracking tables ----
                 # insert to the main Tracking
-                tracking.Tracking.insert1({**key, **tracking_data}, allow_direct_insert=True, ignore_extra_fields=True)
+                tracking.Tracking.insert1({**key, **tracking_data},
+                                          allow_direct_insert=True, ignore_extra_fields=True)
                 # insert to the Tracking part-tables (different tracked features)
                 for tbl_name, tbl_data in part_tbl_data.items():
                     part_tbl = tracking.Tracking.tracking_features[tbl_name]
                     if isinstance(tbl_data, dict):
-                        part_tbl.insert1({**key, **tracking_data, **tbl_data}, allow_direct_insert=True, ignore_extra_fields=True)
+                        part_tbl.insert1({**key, **tracking_data, **tbl_data},
+                                         allow_direct_insert=True, ignore_extra_fields=True)
                     elif isinstance(tbl_data, list):
-                        part_tbl.insert([{**key, **tracking_data, **d} for d in tbl_data], allow_direct_insert=True, ignore_extra_fields=True)
+                        part_tbl.insert([{**key, **tracking_data, **d} for d in tbl_data],
+                                        allow_direct_insert=True, ignore_extra_fields=True)
 
             # insert into self
             self.insert1(key)

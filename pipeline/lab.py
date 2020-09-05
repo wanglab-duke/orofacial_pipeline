@@ -458,7 +458,7 @@ class FiberPhotometryDevice(dj.Lookup):
     excitation_wavelength_1 :  decimal(5,1)  # (nm) 
     excitation_wavelength_2 :  decimal(5,1)  # (nm) 
     isosbestic_wavelength : decimal(5,1)  # (nm) 
-    photostim_device_description : varchar(255)
+    fiberphotometry_device_description : varchar(255)
     """
     contents = [('FP3001', 560, 470, 415, 'Neurophotometrics FP3001'),
                 ('R801', 560, 470, 410, 'RWD R801')]

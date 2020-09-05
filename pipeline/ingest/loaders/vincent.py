@@ -9,7 +9,8 @@ import numpy as np
 This module houses a LoaderClass for Vincent's data format
 Any loader class must have the following interfaces:
 
-    `load_sessions` function:
+    `load_sessions` function:   finds the recording sessions for a subject, within the 
+                                root data directory and locates the session files  
         Input: 
             + root_data_dir: root directory of the data for all subjects
             + subject_name: subject name (i.e. "subject_id" in lab.Subject
@@ -21,10 +22,18 @@ Any loader class must have the following interfaces:
             + rig: the rig the session performed on (i.e. "rig" in lab.Rig)
             + session_files: list of associated files (relative path with respect to the root data directory)
 
-    `load_behavior` function:
+    `load_behavior` function:   loads data related to trial structure, TTLs and 
+                                any data not originating from ephys or video tracking
         Input:
         Output:
-            
+        
+    `load_tracking` function:   loads data output from video tracking
+        Input:
+        Output:
+        
+    `load_ephys` function:  loads processed ephys data
+        Input:
+        Output:
 """
 
 
@@ -32,6 +41,7 @@ class VincentLoader:
 
     tracking_camera = 'WT_Camera_Vincent 0'
     tracking_fps = 500
+    default_task = 'hf wheel'
 
     def __init__(self, root_data_dir, config={}):
         self.config = config
@@ -64,10 +74,33 @@ class VincentLoader:
                    'username': self.config['custom']['username'],
                    'rig': self.config['custom']['rig']}
 
-    def load_behavior(self):
-        pass
+    def load_behavior(self, session_dir, subject_name, session_datetime):
+        # TODO: return data entries for tables
+        #   Task            task
+        #   Photostim       return all info available,
+        #           PhotostimLocation Location can be provided later
+        #   SessionTrial    trial number / start_time stop_time
+        #   PhotostimTrial  trial number for trials that contain photostim
+        #   PhotostimEvent  PhotostimTrial photostim_event_id  Photostim photostim_event_time power
+        #   Project         project_name
+
+        # ---- get task type from the session file ----
+
+        session_datetime_str = datetime.strftime(session_datetime, '%m%d')
+        session_info_file = list(session_dir.glob(f'{subject_name}*{session_datetime_str}*.json'))
+        #sessinfo = json.load('')
+
+        # ---- identify files with TTLs and behavior data ----
+        ephys_dir = session_dir / 'SpikeSorting'
+        if not ephys_dir.exists():
+            raise FileNotFoundError(f'{ephys_dir} not found!')
+        datetime_str = datetime.strftime(session_datetime, '%Y%m%d%H%M%S')
+
+        #tracking_fp = list(tracking_dir.glob(f'{subject_name}*{datetime_str}*.mat'))
 
     def load_tracking(self, session_dir, subject_name, session_datetime):
+        # TODO: decide where wheel position data from rotary encoder goes.
+        #  For now, this is considered tracking data, although it's not video based.
 
         # ---- identify the .mat file for tracking data ----
         tracking_dir = session_dir / 'WhiskerTracking'

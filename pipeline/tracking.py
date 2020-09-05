@@ -1,8 +1,3 @@
-
-'''
-MAP Motion Tracking Schema
-'''
-
 import datajoint as dj
 import numpy as np
 
