@@ -194,7 +194,8 @@ class BrainArea(dj.Lookup):
                 ('preBotC', 'pre-Boetzinger complex'),
                 ('PrV', 'principal trigeminal nucleus'),
                 ('SpVi', 'spinal trigeminal nucleus pars interpolaris'),
-                ('SC', 'superior colliculus'),]
+                ('SC', 'superior colliculus'),
+                ('VIIn', 'facial nucleus')]
     
     
 @schema

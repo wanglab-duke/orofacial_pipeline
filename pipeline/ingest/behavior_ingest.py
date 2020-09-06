@@ -15,7 +15,13 @@ log.setLevel(logging.DEBUG)
 
 loader = get_loader()
 
-
+"""
+For debugging purposes (to be removed)
+from pipeline.ingest import behavior_ingest
+from pipeline.ingest.loaders.vincent import VincentLoader
+self = VincentLoader('D:/Vincent/', dj.config)
+key= {'subject_id': 'vIRt47', 'session': 7}
+"""
 @schema
 class BehaviorIngestion(dj.Imported):
     definition = """
@@ -47,12 +53,8 @@ class BehaviorIngestion(dj.Imported):
         # date is in %m%d format. For recordings, <ref> is typically the probe's insertion depth
         session_dir = (session_ingest.InsertedSession & key).fetch1('sess_data_dir')
         session_dir = loader.root_data_dir / session_dir
-        # don't pass session_datetime as argument. Modify tracking ingest later
-        session_datetime = (experiment.Session & key).proj(
-            session_datetime="cast(concat(session_date, ' ', session_time) as "
-                             "datetime)").fetch1('session_datetime')
-        session_date_str = datetime.strftime(session_datetime, '%m%d')
-        #session_ref =
+
+        session_basename = (experiment.Session & key).fetch1('session_basename')
 
         # Expecting the "loader.load_behavior()" method to return a list of dictionary
         # each member dict represents behavior data for one session
@@ -60,6 +62,6 @@ class BehaviorIngestion(dj.Imported):
         # passing `key` as first arguments returns this error:
         # load_behavior() takes 4 positional arguments but 5 were given
         # that doesn't seem to be a problem for load_tracking ... Or is it?
-        all_behavior_data = loader.load_behavior(session_dir, key['subject_id'], session_date_str)
+        all_behavior_data = loader.load_behavior(session_dir, key['subject_id'],session_basename)
 
 

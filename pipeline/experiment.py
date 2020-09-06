@@ -45,7 +45,7 @@ class Task(dj.Lookup):
         ('hf texture discrim', 'head fixed texture discrimination)'),
         ('hf pole loc', 'head fixed pole localization)'),
         ('hf wall dist', 'head-fixed wall distance'),
-        ('hf wheel', 'head-fixed wheel runing'),
+        ('hf wheel', 'head-fixed wheel running'),
         ('gen tun', 'unstructured generic tuning stimulation)')
     ]
 

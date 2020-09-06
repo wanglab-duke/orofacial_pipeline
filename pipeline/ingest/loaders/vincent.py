@@ -7,24 +7,31 @@ import numpy as np
 
 """
 This module houses a LoaderClass for Vincent's data format
+    Input: 
+        + root_data_dir: root directory of the data for all subjects
+        + config: configuration parameters (typically, dj.config) 
+        
 Any loader class must have the following interfaces:
 
     `load_sessions` function:   finds the recording sessions for a subject, within the 
                                 root data directory and locates the session files  
         Input: 
-            + root_data_dir: root directory of the data for all subjects
             + subject_name: subject name (i.e. "subject_id" in lab.Subject
         Output: A list of dictionary, each represents one session to be ingested, with the following keys:
             + subject_id: (str) subject id
             + session_date: (date) session's date 
             + session_time: (time) session's time 
+            + session_basename: (str) the id to reference all session files 
             + username: experimenter's username associated with this session (i.e. "username" in lab.Person)
             + rig: the rig the session performed on (i.e. "rig" in lab.Rig)
             + session_files: list of associated files (relative path with respect to the root data directory)
 
     `load_behavior` function:   loads data related to trial structure, TTLs and 
                                 any data not originating from ephys or video tracking
-        Input:
+        Input: 
+            + session_dir
+            + subject_name 
+            + session_basename
         Output:
         
     `load_tracking` function:   loads data output from video tracking
@@ -78,7 +85,7 @@ class VincentLoader:
                    'username': self.config['custom']['username'],
                    'rig': self.config['custom']['rig']}
 
-    def load_behavior(self, session_dir, subject_name, session_datetime):
+    def load_behavior(self, session_dir, subject_name, session_basename):
         # TODO: return data entries for tables
         #   Task            task
         #   Photostim       return all info available,
@@ -89,16 +96,35 @@ class VincentLoader:
         #   Project         project_name
 
         # ---- get task type from the session file ----
+        session_info_file = list(session_dir.glob(f'{session_basename}*.json'))
+        with open(session_info_file[0]) as f:
+            sessinfo = json.load(f)
+        task = sessinfo.get('task', 'hf wheel') # if task not specified, default to head-fixed wheel running
 
-        session_datetime_str = datetime.strftime(session_datetime, '%m%d')
-        session_info_file = list(session_dir.glob(f'{subject_name}*{session_datetime_str}*.json'))
-        #sessinfo = json.load('')
+        # ---- get Photostim parameters (need to export that from notes first) ----
+        photostim_params = sessinfo.get('photostim')  #
+        if photostim_params:
+            for pspNum in photostim_params:
+                photo_stim = pspNum['protocolNum']
+                photostimDevice = pspNum['photostimDevice']
+                power = pspNum['power']
+                pulse_duration = pspNum['pulse_duration']
+                pulse_frequency = pspNum['pulse_frequency']
+                pulses_per_train = pspNum['pulses_per_train']
+                try:
+                    waveform = pspNum['waveform']
+                except KeyError:
+                    waveform = []
 
-        # ---- identify files with TTLs and behavior data ----
-        ephys_dir = session_dir / 'SpikeSorting'
+
+
+
+        # ---- identify files with TTLs and trial data ----
+        ephys_dir = session_dir / 'SpikeSorting' / session_basename
         if not ephys_dir.exists():
             raise FileNotFoundError(f'{ephys_dir} not found!')
-        datetime_str = datetime.strftime(session_datetime, '%Y%m%d%H%M%S')
+
+
 
         #tracking_fp = list(tracking_dir.glob(f'{subject_name}*{datetime_str}*.mat'))
 
