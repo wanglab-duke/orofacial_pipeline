@@ -101,32 +101,38 @@ class VincentLoader:
             sessinfo = json.load(f)
         task = sessinfo.get('task', 'hf wheel') # if task not specified, default to head-fixed wheel running
 
-        # ---- get Photostim parameters (need to export that from notes first) ----
+        # ---- get Photostim parameters (TODO: need to export that from notes first) ----
         photostim_params = sessinfo.get('photostim')  #
         if photostim_params:
-            for pspNum in photostim_params:
-                photo_stim = pspNum['protocolNum']
-                photostimDevice = pspNum['photostimDevice']
-                power = pspNum['power']
-                pulse_duration = pspNum['pulse_duration']
-                pulse_frequency = pspNum['pulse_frequency']
-                pulses_per_train = pspNum['pulses_per_train']
+            for psp in photostim_params: # TODO: change that bit of code to be able to ingest multiple protocols
+                photo_stim = psp['protocolNum']
+                photostimDevice = psp['photostimDevice']
+                power = psp['power']
+                pulse_duration = psp['pulse_duration']
+                pulse_frequency = psp['pulse_frequency']
+                pulses_per_train = psp['pulses_per_train']
                 try:
-                    waveform = pspNum['waveform']
+                    waveform = psp['waveform']
                 except KeyError:
                     waveform = []
+                photostimLocation = psp['photostimLocation']
 
-
-
+        # ---- get trial data (TODO: either add that to json file, or read from trial.csv) ----
+        # let's assume it's in the json file (probably most straightforward solution)
+        trial_structure = sessinfo.get('trials')
+        if trial_structure:
+            for tr in trial_structure:
+                trial = tr['trialNum']
+                start_time = tr['start_time']
+                stop_time = tr['stop_time']
+                if tr['isphotostim']:
+                    photostimTrial = tr['trialNum']
 
         # ---- identify files with TTLs and trial data ----
         ephys_dir = session_dir / 'SpikeSorting' / session_basename
         if not ephys_dir.exists():
             raise FileNotFoundError(f'{ephys_dir} not found!')
-
-
-
-        #tracking_fp = list(tracking_dir.glob(f'{subject_name}*{datetime_str}*.mat'))
+        
 
     def load_tracking(self, session_dir, subject_name, session_datetime):
         # TODO: decide where wheel position data from rotary encoder goes.
