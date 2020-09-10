@@ -48,7 +48,7 @@ sessionIdx=xpNotes.Procedure=='R'; % Ephys recordings should be noted as R
 procedureIdx=find(procedureIdx & ~sessionIdx);
 sessionIdx=find(sessionIdx);
 if ~isempty(sessionIdx)
-    sessions=struct('date',[],'probe',[],'adapter',[],'AP',[],'ML',[],'depth',[],...
+    sessions=struct('baseName',[],'date',[],'probe',[],'adapter',[],'AP',[],'ML',[],'depth',[],...
         'stimPower',[],'stimFreq',[],'pulseDur',[],'stimDevice',[]);
 end
 
@@ -65,15 +65,16 @@ fprintf(fid,'%s%s%s',sprintf('\t\t'), str(3:end-2), sprintf('\r\n\t},\r\n'));
 procedureRange=[];
 fprintf(fid,'\t"Procedures": [\r\n');
 for procNum=1:numel(procedureIdx)
-    if any(ismember(procedureRange,procNum))
+    if any(ismember(procedureRange,procedureIdx(procNum)))
         continue
     end
     % find row range of procedure
-    if ismember(xpNotes.Procedure(procedureIdx(procNum)),'injection')
-        notinjectionsIdx=procedureIdx(...
-        ~contains(string(xpNotes.Procedure(procedureIdx)),'injection'));
+    % Special procedures for injections and fiber optic implantation
+    if ismember(xpNotes.Procedure(procedureIdx(procNum)),{'injection','implant FO'})
+        specProcIdx=procedureIdx(...
+        ~contains(string(xpNotes.Procedure(procedureIdx)),{'injection','fiber optic'}));
         procedureRange=procedureIdx(procNum):...
-            notinjectionsIdx(find(notinjectionsIdx>procedureIdx(procNum),1))-1;
+            specProcIdx(find(specProcIdx>procedureIdx(procNum),1))-1;
     else
         if procNum<numel(procedureIdx)
             procedureRange=procedureIdx(procNum):procedureIdx(procNum+1)-1;
@@ -123,8 +124,8 @@ for procNum=1:numel(procedureIdx)
             depthstr=string(depth); depthstr(isnan(depth))='    ';
             notes=xpNotes.Notes(procedureRange(2:end));
             % join notes
-            notes=strjoin(recMark + sprintf('\t') + depthstr + sprintf('\t') + notes,...
-                '"\r\n\t\t\t"'); %[notes{:}];
+            notes=strjoin(recMark + sprintf('\t') + depthstr + sprintf(""":\t""") + notes,...
+                '",\r\n\t\t\t"'); %[notes{:}];
             fprintf(fid,',\r\n\t\t"Extended Notes":{\r\n\t\t\t"%s"}\r\n',notes);
         end     
         %% get info about sessions
@@ -132,7 +133,11 @@ for procNum=1:numel(procedureIdx)
         % will have the same date
         if any(ismember(sessionIdx,procedureRange(2:end)))
             sessionIds=find(ismember(sessionIdx,procedureRange(2:end)));
-            for sessionnNum=1:numel(sessionIds)
+            for sessionnNum=1:numel(sessionIds) 
+                sessions(sessionIds(sessionnNum)).baseName=[...
+                    xpNotesHeader.SubjectID{1} '_',...
+                    char(datetime(xpNotes.Date(procedureIdx(procNum)),'Format','MMdd')) '_'...
+                    num2str(-xpNotes.Depth(sessionIdx(sessionIds(sessionnNum))))];
                 sessions(sessionIds(sessionnNum)).date=xpNotes.Date(procedureIdx(procNum));
                 recNotes=xpNotes.Notes(procedureIdx(procNum));
                 sessions(sessionIds(sessionnNum)).probe=regexp(recNotes,'.+(?= &)','match','once');

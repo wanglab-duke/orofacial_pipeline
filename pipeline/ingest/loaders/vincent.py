@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import scipy.io as spio
 import numpy as np
+import os
 
 """
 This module houses a LoaderClass for Vincent's data format
@@ -60,7 +61,7 @@ class VincentLoader:
         if not subj_dir.exists():
             raise FileNotFoundError(f'{subj_dir} not found!')
 
-        # find all 'Analysis' folders, which contain the processed files for each session
+        # find all sessions' json files, which contain the processed files for each session
         all_sessions = list(subj_dir.rglob('**/*info.json'))
 
         # ---- parse processed data folders:
@@ -99,40 +100,48 @@ class VincentLoader:
         session_info_file = list(session_dir.glob(f'{session_basename}*.json'))
         with open(session_info_file[0]) as f:
             sessinfo = json.load(f)
-        task = sessinfo.get('task', 'hf wheel') # if task not specified, default to head-fixed wheel running
+        task = sessinfo.get('task', self.default_task) # if task not specified, set default (e.g, head-fixed wheel running)
 
-        # ---- get Photostim parameters (TODO: need to export that from notes first) ----
-        photostim_params = sessinfo.get('photostim')  #
+        # ---- get Photostim parameters (need to export notes first) ----
+        photostim_params = sessinfo.get('photoStim')  #
         if photostim_params:
-            for psp in photostim_params: # TODO: change that bit of code to be able to ingest multiple protocols
-                photo_stim = psp['protocolNum']
-                photostimDevice = psp['photostimDevice']
-                power = psp['power']
-                pulse_duration = psp['pulse_duration']
-                pulse_frequency = psp['pulse_frequency']
-                pulses_per_train = psp['pulses_per_train']
-                try:
-                    waveform = psp['waveform']
-                except KeyError:
-                    waveform = []
-                photostimLocation = psp['photostimLocation']
+            for psp in photostim_params: # TODO: fix this, indexing doesn't work when going through dictionary instead of list
+                photo_stim.append(psp['protocolNum'])
+                photostimDevice.append(psp['stimDevice'])
+                power.append(psp['stimPower'])
+                pulse_duration.append(psp['pulseDur'])
+                pulse_frequency.append(psp['stimFreq'])
+                pulses_per_train.append(psp['trainLength'])
+                waveform.append(psp.get('waveform', []))
+                photostimLocation.append(psp.get('photostimLocation', [])) #TODO: get photostimLocation from FO implant info
 
-        # ---- get trial data (TODO: either add that to json file, or read from trial.csv) ----
-        # let's assume it's in the json file (probably most straightforward solution)
+        # ---- get trial info ----
+        # (can be found in session's json file, or read from trial.csv
+        # first solution is the most straightforward)
         trial_structure = sessinfo.get('trials')
         if trial_structure:
             for tr in trial_structure:
-                trial = tr['trialNum']
-                start_time = tr['start_time']
-                stop_time = tr['stop_time']
+                trial.append(tr['trialNum'])
+                start_time.append(tr['start'])
+                stop_time.append(tr['stop'])
                 if tr['isphotostim']:
-                    photostimTrial = tr['trialNum']
+                    photostimTrial.append(tr['trialNum'])
 
-        # ---- identify files with TTLs and trial data ----
+        # ---- load files with TTLs and trial data ----
         ephys_dir = session_dir / 'SpikeSorting' / session_basename
         if not ephys_dir.exists():
-            raise FileNotFoundError(f'{ephys_dir} not found!')
-        
+           raise FileNotFoundError(f'{ephys_dir} not found!')
+        #load .dat with numpy
+        TTLfile = os.path.join(ephys_dir, session_basename + '_TTLs.dat')
+        with open(TTLfile, 'rb') as fid:
+            TTL_ts = np.fromfile(fid, np.double).reshape((-1, 2)).T
+        photostim_event_id = np.arange(len(TTL_ts[0]))
+        photostim_event_time = TTL_ts[0]/1000 - start_time[photostimTrial[0]]
+        photostim_power = np.tile(power[0], len(TTL_ts[0]))
+        # TODO: export laser TTLs in seconds
+        #       remove TTL end times?
+        #       reference timestamps to "trial" and photo_stim protocol number
+
 
     def load_tracking(self, session_dir, subject_name, session_datetime):
         # TODO: decide where wheel position data from rotary encoder goes.

@@ -16,7 +16,7 @@ class Session(dj.Manual):
     session_date: date
     session_time: time  # computer time for t=0. This is the start of the data acquisition from the master device (typically with the highest sampling rate, e.g., ephys acquisition device)
     unique index (subject_id, session_date, session_time)
-    session_basename: varchar(24) # unique id used for referencing session files. All files associated to that session should contain that base name (or be within a folder that does)
+    session_basename=null: varchar(24) # unique id used for referencing session files. All files associated to that session should contain that base name (or be within a folder that does)
     -> lab.Person
     -> lab.Rig
     """
@@ -24,7 +24,7 @@ class Session(dj.Manual):
     class Notes(dj.Part):
         definition = """
         # Notes for the recording session, to be entered manually or parsed from notes spreadsheet 
-        -> Session
+        -> master
         note_id     : int
         ---
         note        : varchar(1000)
