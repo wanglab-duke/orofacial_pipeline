@@ -64,4 +64,24 @@ class BehaviorIngestion(dj.Imported):
         # that doesn't seem to be a problem for load_tracking ... Or is it?
         all_behavior_data = loader.load_behavior(session_dir, key['subject_id'],session_basename)
 
+        with dj.conn().transaction:
+            for behavior_data in all_behavior_data:
 
+                # ---- insert to relevant tables ----
+                # insert to the main Tracking
+                experiment.Task.insert1({**key, **behavior_data},
+                                          allow_direct_insert=True, ignore_extra_fields=True)
+                experiment.Photostim.insert1({**key, **behavior_data},
+                                        allow_direct_insert=True, ignore_extra_fields=True)
+                experiment.SessionTrial.insert1({**key, **behavior_data},
+                                        allow_direct_insert=True, ignore_extra_fields=True)
+                experiment.PhotostimTrial.insert1({**key, **behavior_data},
+                                        allow_direct_insert=True, ignore_extra_fields=True)
+                experiment.PhotostimEvent.insert1({**key, **behavior_data},
+                                        allow_direct_insert=True, ignore_extra_fields=True)
+                experiment.Project.insert1({**key, **behavior_data},
+                                        allow_direct_insert=True, ignore_extra_fields=True)
+
+            # insert into self
+            self.insert1(key)
+            log.info(f'Inserted tracking for: {key}')
