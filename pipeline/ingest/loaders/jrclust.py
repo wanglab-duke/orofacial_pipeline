@@ -21,9 +21,9 @@ class JRCLUST:
     @property
     def data(self):
         if self._data is None:
-            if self.JRCLUST_version == 'v3':
+            if self.JRCLUST_version == 'jrclust_v3':
                 self._data = _load_jrclust_v3(self.filepath)
-            elif self.JRCLUST_version == 'v4':
+            elif self.JRCLUST_version == 'jrclust_v4':
                 self._data = _load_jrclust_v4(self.filepath)
             else:
                 raise ValueError('Unknown JRClust version')

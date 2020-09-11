@@ -135,6 +135,7 @@ class VincentLoader:
         if len(prb_adaptor_fp) != 1:
             raise FileNotFoundError(f'Unable to find one Probe Adapter file - Found: {prb_adaptor_fp}')
 
+        # read recInfo file
         recInfo = {}
         with h5py.File(str(recinfo_fp[0]), mode='r') as f:  # ephys file
             info = f['recInfo']
@@ -145,6 +146,7 @@ class VincentLoader:
             recInfo['recording_time'] = datetime.strptime(rec_date, '%d_%b_%Y_%H_%M_%S')
             recInfo['recording_system'] = str().join(chr(c) for c in info['sys'])
 
+        # read adapter file
         adapter = {}
         with open(prb_adaptor_fp[0], mode='r') as f:
             for line in f.readlines():
@@ -183,7 +185,8 @@ class VincentLoader:
                       'spike_depths': jrclust.data['spike_depths'],
                       'unit_amp': jrclust.data['unit_amp'],
                       'unit_snr': jrclust.data['unit_snr'],
-                      'waveform': jrclust.data['unit_wav']  # (unit x channel x sample)
+                      'waveform': jrclust.data['unit_wav'],  # (unit x channel x sample)
+                      'ephys_files': [fp.relative_to(self.root_data_dir) for fp in (jrclust_fp, recinfo_fp, prb_adaptor_fp)]
                       }
 
         return [probe_data]  # return a list of dictionary, one for data from one probe

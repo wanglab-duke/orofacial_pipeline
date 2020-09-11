@@ -82,6 +82,7 @@ class Photostim(dj.Manual):
         -> lab.BrainArea           # target brain area for photostim 
         """
 
+
 @schema
 class PhotostimBrainRegion(dj.Computed):
     definition = """
@@ -173,7 +174,6 @@ class SessionTrial(dj.Imported):
     -> Session
     trial : smallint 		# trial number (1-based indexing)
     ---
-    trial_uid : int  # unique across sessions/animals
     start_time : decimal(9, 4)  # (s) relative to session beginning 
     stop_time : decimal(9, 4)  # (s) relative to session beginning 
     """
