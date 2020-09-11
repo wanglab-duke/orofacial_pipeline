@@ -108,24 +108,17 @@ class VincentLoader:
                 photostim_params_copy = photostim_params.copy()
                 photostim_params = [photostim_params_copy]
 
-            photo_stim = []
-            photostim_device = []
-            power = []
-            pulse_duration = []
-            pulse_frequency = []
-            pulses_per_train = []
-            waveform = []
-            photostim_location  = []
-
+            photostims = []  
             for psp in photostim_params:
-                photo_stim.append(psp['protocolNum'])
-                photostim_device.append(psp['stimDevice'])
-                power.append(psp['stimPower'])
-                pulse_duration.append(psp['pulseDur'])
-                pulse_frequency.append(psp['stimFreq'])
-                pulses_per_train.append(psp['trainLength'])
-                waveform.append(psp.get('waveform', []))
-                photostim_location.append(psp.get('photostim_location', []))  # TODO: get photostim_location from FO implant info
+                photostim = {'photo_stim': psp['protocolNum'],
+                             'photostim_device': psp['stimDevice'],
+                             'power': psp['stimPower'],
+                             'pulse_duration': psp['pulseDur'],
+                             'pulse_frequency': psp['stimFreq'],
+                             'pulses_per_train': psp['trainLength'],
+                             'waveform': psp.get('waveform', []),
+                             **psp.get('photostim_location', {})}  # TODO: get photostim_location from FO implant info
+                photostims.append(photostim)
 
         # ---- load files with TTLs and trial data ----
         ephys_dir = session_dir / 'SpikeSorting' / session_basename
@@ -140,54 +133,39 @@ class VincentLoader:
         # (can be found in session's json file, or read from trial.csv. Frst solution is the most straightforward)
         trial_structure = sessinfo.get('trials')
         if trial_structure:
-
-            trial = []
-            start_time = []
-            stop_time = []
-            photostim_trial = []
-            photostim_event_id = []
-            photostim_event_time = []
-            photostim_power = []
-
-            # get trial structure
-            for tr in trial_structure:
-                trial.append(tr['trialNum'])
-                start_time.append(tr['start'])
-                stop_time.append(tr['stop'])
-                if tr['isphotostim']:
-                    photostim_trial.append(tr['trialNum'])
-            # apply structure to TTLs
+            # get trial structure then apply structure to TTLs
+            session_trials = []
+            photostim_trials = []
+            photostim_events = []
             ttl_id = np.arange(len(ttl_ts))
             photostim_power_array = np.tile(power, len(ttl_ts))
             for tr in trial_structure:
-                ttl_idx = (ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])
-                photostim_event_id.append(ttl_id[ttl_idx])
-                photostim_event_time.append(ttl_ts[ttl_idx]-tr['start'])
-                photostim_power.append(photostim_power_array[ttl_idx])
+                trials = {'trial': tr['trialNum'],
+                          'start_time': tr['start'],
+                          'stop_time': tr['stop']}
+                if tr['isphotostim']:
+                    photostim_trial = {'sessiontrial': tr['trialNum']}
+                    ttl_idx = (ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])
+                    photostim_event = {'photostimtrial' : photostim_trial,
+                                    'photostim_event_id': ttl_id[ttl_idx],
+                                    'photostim_event_time': ttl_ts[ttl_idx]-tr['start'],
+                                    'photostim_power': photostim_power_array[ttl_idx]}
+                session_trials.append(trials)
+                photostim_trials.append(photostim_trial)
+                photostim_events.append(photostim_event)
 
         if subject_name.find('vIRt'):
             project = 'vIRt'
         else:
             project = []
 
-        return [{'task': task,
-                 'photo_stim': photo_stim,
-                 'photostim_device': photostim_device,
-                 'power': power,
-                 'pulse_duration': pulse_duration,
-                 'pulse_frequency': pulse_frequency,
-                 'pulses_per_train': pulses_per_train,
-                 'waveform': waveform,
-                 'trial': trial,
-                 'start_time': start_time,
-                 'stop_time': stop_time,
-                 'photostim_trial': photostim_trial,
-                 'photostim_event_id': photostim_event_id,
-                 'photostim_event_time': photostim_event_time,
-                 'photostim_power': photostim_power,
-                 'project': project}]
-
-    # TODO: 'PhotostimLocation': photostimLocation ...
+        return [{
+             'task': task,
+             'photostims' : photostims,
+             'session_trials': session_trials,
+             'photostim_trials': photostim_trials,
+             'photostim_events': photostim_events,
+             'project': project}]
 
     def load_tracking(self, session_dir, subject_name, session_datetime):
         # TODO: decide where wheel position data from rotary encoder goes.

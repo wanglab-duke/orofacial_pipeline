@@ -64,23 +64,22 @@ class BehaviorIngestion(dj.Imported):
         # that doesn't seem to be a problem for load_tracking ... Or is it?
         all_behavior_data = loader.load_behavior(session_dir, key['subject_id'],session_basename)
 
-        with dj.conn().transaction:
-            for behavior_data in all_behavior_data:
+        for behavior_data in all_behavior_data:
 
-                # ---- insert to relevant tables ----
-                # insert to the main Tracking
-                experiment.Task.insert1({**key, **behavior_data},
-                                          allow_direct_insert=True, ignore_extra_fields=True)
-                experiment.Photostim.insert1({**key, **behavior_data},
-                                        allow_direct_insert=True, ignore_extra_fields=True)
-                experiment.SessionTrial.insert1({**key, **behavior_data},
-                                        allow_direct_insert=True, ignore_extra_fields=True)
-                experiment.PhotostimTrial.insert1({**key, **behavior_data},
-                                        allow_direct_insert=True, ignore_extra_fields=True)
-                experiment.PhotostimEvent.insert1({**key, **behavior_data},
-                                        allow_direct_insert=True, ignore_extra_fields=True)
-                experiment.Project.insert1({**key, **behavior_data},
-                                        allow_direct_insert=True, ignore_extra_fields=True)
+            # ---- insert to relevant tables ----
+            # insert to the main Tracking
+            experiment.Task.insert1({**key, **behavior_data},
+              allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.Photostim.insert([{**key, **photostim} for photostim in behavior_data['photostims']],
+                allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.SessionTrial.insert([{**key, **trials} for trials in behavior_data['session_trials']],
+                allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.PhotostimTrial.insert([{**key, **photostim_trial} for photostim_trial in behavior_data['photostim_trials']],
+                allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.PhotostimEvent.insert([{**key, **photostim_event} for photostim_event in behavior_data['photostim_events']],
+                allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.Project.insert1({**key, **behavior_data},
+                allow_direct_insert=True, ignore_extra_fields=True)
 
             # insert into self
             self.insert1(key)
