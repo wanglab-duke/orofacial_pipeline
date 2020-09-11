@@ -8,15 +8,44 @@
 	"chanID": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],
 	"chanList": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],
 	"numRecChan": 32,
-	"date": "05-Aug-2020 18:19:41",
-	"start_time": [18,19,41,480],
+	"date": "05-Aug-2020 14:29:01",
+	"start_time": [14,29,1],
 	"sys": "Blackrock",
+	"baseName": "vIRt47_0805_5954",
+	"subject": "vIRt47",
+	"shortDate": "0805",
+	"probeDepth": "5954",
 	"export": {
 		"directory":"D:\\Vincent\\vIRt47\\vIRt47_0805\\SpikeSorting\\vIRt47_0805_5954",
 		"binFile":"vIRt47_0805_5954_export.bin",
-		"spikesFile":"vIRt47_0805_5954_spikes.mat",
-		"TTLs":["vIRt47_0805_5954_TTLs.dat",
-		"vIRt47_0805_5954_trial.csv"],
-		"vSync":"vIRt47_0805_5954_vSyncTTLs.dat"},
-	"likelyVideoFile": "vIRt47_0805_5954_20200805-141945_HSCam.avi"
+		"spikesFile":"vIRt47_0805_5954_spikes.mat"},
+	"likelyVideoFile": "vIRt47_0805_5954_20200805-141945_HSCam.avi",
+	"ephys": {
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5954},
+	"photoStim": {
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":0.005,
+		"stimDevice":"Cobolt473",
+		"protocolNum":0,
+		"trainLength":400},
+	"trials": [{
+		"trialNum":0,
+		"start":0,
+		"stop":416.76840000000004,
+		"isphotostim":false},
+		{
+		"trialNum":1,
+		"start":416.76840000000004,
+		"stop":475.68326666666667,
+		"isphotostim":true},
+		{
+		"trialNum":2,
+		"start":475.68326666666667,
+		"stop":560.35163333333333,
+		"isphotostim":false}]
 }
