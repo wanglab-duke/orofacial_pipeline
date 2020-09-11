@@ -33,6 +33,16 @@ class InsertedSession(dj.Imported):
 def load_all_sessions(subject_id):
     loader = get_loader()
     # ---- parse data dir and load all sessions ----
+    """
+        For each session, return 
+        + subject_name
+        + session_date
+        + session_time
+        + session_basename
+        + session_files
+        + username
+        + rig
+    """
     try:
         sessions_to_ingest = loader.load_sessions(subject_id)
     except FileNotFoundError as e:

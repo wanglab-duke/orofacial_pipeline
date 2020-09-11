@@ -1,0 +1,284 @@
+{
+	"Header": {
+		"SubjectID":"subjectID",
+		"Goal":"chronic recording + opto stim",
+		"Type":"PV-Cre",
+		"Sex":"F",
+		"DOB":"02/15/2020",
+		"Tag":"1L1R",
+		"Cagecard":"1206423"
+	},
+	"Procedures": [
+		{"Procedure":"injection",
+		"Date":"04/10/2020",
+		"Notes":"",
+		"Subprocedures": [
+				{"Procedure":"vIRt injection",
+				"APcoord":-6.6,
+				"MLcoord":-0.9,
+				"Depth":-4.9,
+				"Notes":"2/8 ef1a-Flex-ChR2-mCherry 200nl 40nl/mn"
+				},
+				{"Procedure":"FN injection",
+				"APcoord":-5.8,
+				"MLcoord":-1.35,
+				"Depth":-5.2,
+				"Notes":"RG-LV-CreC 1200nl 70nl/mn",
+				"Extended Notes": "wait 10 mn each  - all good"
+				}
+			]
+		},
+		{"Procedure":"implant FO",
+		"Date":"06/15/2020",
+		"Notes":"200um 5mm long (4.5mm + 0.5mm spacing)",
+		"Extended Notes":{
+			"-	    	using 20d 2.75 coordinates. Implant at 4.5 deep"}
+		},
+		{"Procedure":"wheel training",
+		"Date":"06/28/2020",
+		"Notes":"runs ok"
+		},
+		{"Procedure":"wheel training",
+		"Date":"06/29/2020",
+		"Notes":"runs well"
+		},
+		{"Procedure":"wheel training",
+		"Date":"06/30/2020",
+		"Notes":"runs well"
+		},
+		{"Procedure":"open cranio",
+		"Date":"07/01/2020",
+		"Notes":""
+		},
+		{"Procedure":"recording",
+		"Date":"07/01/2020",
+		"Notes":"Probe 40 16Ch CN & NN Adapter",
+		"Extended Notes":{
+			"-	    	Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+			"-	    	ed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+			"-	0	9446. Go to 14400"
+			"-	-100	Nibh tortor id aliquet lectus proin nibh. "
+			"-	-1600	Nibh tortor id aliquet lectus proin nibh. "
+			"R	-2666	Nibh tortor id aliquet lectus proin nibh. "
+			"-	-3100	Nibh tortor id aliquet lectus proin nibh. "
+			"-	-3400	Nibh tortor id aliquet lectus proin nibh. "
+			"-	-3500	Nibh tortor id aliquet lectus proin nibh. "
+			"-	-3600	Nibh tortor id aliquet lectus proin nibh. "
+			"R	-4393	Nibh tortor id aliquet lectus proin nibh. "
+			"-	-4700	Nibh tortor id aliquet lectus proin nibh. "
+			"-	-4900	Nibh tortor id aliquet lectus proin nibh. "
+			"R	-5100	Nibh tortor id aliquet lectus proin nibh. "
+			"R	-5536	Nibh tortor id aliquet lectus proin nibh. "
+			"R	-5800	Nibh tortor id aliquet lectus proin nibh. "}
+		},
+		{"Procedure":"recording",
+		"Date":"07/02/2020",
+		"Notes":"Probe 44 32Ch CN & CN Adapter",
+		"Extended Notes":{
+			"-	    	"
+			"-	0	16713. Go to 21700"
+			"-	-1000	Pellentesque eu tincidunt tortor aliquam"
+			"-	-1200	Pellentesque eu tincidunt tortor aliquam"
+			"R	-1200	Pellentesque eu tincidunt tortor aliquam"
+			"-	-2700	Pellentesque eu tincidunt tortor aliquam"
+			"-	    	Pellentesque eu tincidunt tortor aliquam"
+			"-	-3100	Pellentesque eu tincidunt tortor aliquam"
+			"-	    	Pellentesque eu tincidunt tortor aliquam"
+			"-	-3800	Pellentesque eu tincidunt tortor aliquam"
+			"R	-4650	Pellentesque eu tincidunt tortor aliquam"
+			"-	-4900	Pellentesque eu tincidunt tortor aliquam"
+			"R	-5050	Pellentesque eu tincidunt tortor aliquam"
+			"R	-5170	Pellentesque eu tincidunt tortor aliquam"
+			"R	-5537	Pellentesque eu tincidunt tortor aliquam"
+			"R	-5709	Pellentesque eu tincidunt tortor aliquam"
+			"R	-5900	Pellentesque eu tincidunt tortor aliquam"
+			"-	    	Pellentesque eu tincidunt tortor aliquam"
+			"R	-5950	Pellentesque eu tincidunt tortor aliquam"
+			"R	-6050	Pellentesque eu tincidunt tortor aliquam"
+			"R	-6150	Pellentesque eu tincidunt tortor aliquam"
+			"R	-5800	Pellentesque eu tincidunt tortor aliquam"
+			"-	    	Pellentesque eu tincidunt tortor aliquam"
+			"-	    	"
+			"-	    	"
+			"-	    	"
+			"-	    	"}
+		}
+	],
+	"Sessions": [ 
+		{"date":"07/01/2020",
+		"probe":"Probe 40 16Ch CN",
+		"adapter":"NN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-2666,
+		"stimPower":null,
+		"stimFreq":null,
+		"pulseDur":null,
+		"stimDevice":null
+		},
+		{"date":"07/01/2020",
+		"probe":"Probe 40 16Ch CN",
+		"adapter":"NN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-4393,
+		"stimPower":5,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/01/2020",
+		"probe":"Probe 40 16Ch CN",
+		"adapter":"NN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5100,
+		"stimPower":null,
+		"stimFreq":null,
+		"pulseDur":null,
+		"stimDevice":null
+		},
+		{"date":"07/01/2020",
+		"probe":"Probe 40 16Ch CN",
+		"adapter":"NN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5536,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/01/2020",
+		"probe":"Probe 40 16Ch CN",
+		"adapter":"NN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5800,
+		"stimPower":null,
+		"stimFreq":null,
+		"pulseDur":null,
+		"stimDevice":null
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-1200,
+		"stimPower":null,
+		"stimFreq":null,
+		"pulseDur":null,
+		"stimDevice":null
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-4650,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5050,
+		"stimPower":null,
+		"stimFreq":null,
+		"pulseDur":null,
+		"stimDevice":null
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5170,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5537,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5709,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5900,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5950,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-6050,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-6150,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"
+		},
+		{"date":"07/02/2020",
+		"probe":"Probe 44 32Ch CN",
+		"adapter":"CN Adapter",
+		"AP":-6.6,
+		"ML":-0.9,
+		"depth":-5800,
+		"stimPower":10,
+		"stimFreq":10,
+		"pulseDur":10,
+		"stimDevice":"Cobolt473"}
+	]
+}

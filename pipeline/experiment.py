@@ -16,9 +16,19 @@ class Session(dj.Manual):
     session_date: date
     session_time: time  # computer time for t=0. This is the start of the data acquisition from the master device (typically with the highest sampling rate, e.g., ephys acquisition device)
     unique index (subject_id, session_date, session_time)
+    session_basename=null: varchar(24) # unique id used for referencing session files. All files associated to that session should contain that base name (or be within a folder that does)
     -> lab.Person
     -> lab.Rig
     """
+
+    class Notes(dj.Part):
+        definition = """
+        # Notes for the recording session, to be entered manually or parsed from notes spreadsheet 
+        -> master
+        note_id     : int
+        ---
+        note        : varchar(1000)
+        """
 
 
 @schema
@@ -35,7 +45,7 @@ class Task(dj.Lookup):
         ('hf texture discrim', 'head fixed texture discrimination)'),
         ('hf pole loc', 'head fixed pole localization)'),
         ('hf wall dist', 'head-fixed wall distance'),
-        ('hf wheel', 'head-fixed wheel runing'),
+        ('hf wheel', 'head-fixed wheel running'),
         ('gen tun', 'unstructured generic tuning stimulation)')
     ]
 
@@ -173,7 +183,6 @@ class SessionTrial(dj.Imported):
     -> Session
     trial : smallint 		# trial number (1-based indexing)
     ---
-    trial_uid : int  # unique across sessions/animals
     start_time : decimal(9, 4)  # (s) relative to session beginning 
     stop_time : decimal(9, 4)  # (s) relative to session beginning 
     """
@@ -285,7 +294,7 @@ class TrialEvent(dj.Imported):
     trial_event_id: smallint
     ---
     -> TrialEventType
-    trial_event_time : decimal(8, 4)   # (s) from trial start, not session start
+    trial_event_time : decimal(9, 4)   # (s) from trial start, not session start
     duration : decimal(8,4)  #  (s)  
     """
 
@@ -310,7 +319,7 @@ class ActionEvent(dj.Imported):
     action_event_id: smallint
     ---
     -> ActionEventType
-    action_event_time : decimal(8,4)  # (s) from trial start
+    action_event_time : decimal(9,4)  # (s) from trial start
     """
 
 
@@ -331,7 +340,7 @@ class PhotostimEvent(dj.Imported):
     photostim_event_id: smallint
     ---
     -> Photostim
-    photostim_event_time : decimal(8,3)   # (s) from trial start
+    photostim_event_time : decimal(10,5)   # (s) from trial start
     power : decimal(8,3)   # Maximal power (mW)
     """
 
