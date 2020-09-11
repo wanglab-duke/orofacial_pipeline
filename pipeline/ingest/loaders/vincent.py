@@ -1,3 +1,4 @@
+import os
 import pathlib
 import json
 from datetime import datetime
@@ -5,10 +6,10 @@ import scipy.io as spio
 import numpy as np
 import h5py
 import ast
+import re
 
 from .jrclust import JRCLUST
 
-import os
 
 """
 This module houses a LoaderClass for Vincent's data format
@@ -136,6 +137,7 @@ class VincentLoader:
 
         # ---- get trial info ----
         # (can be found in session's json file, or read from trial.csv. Frst solution is the most straightforward)
+        power = photostims[0]['power']  # TODO: hardcoded using "power" from the 1st photostim protocol in the list, verify this
         trial_structure = sessinfo.get('trials')
         if trial_structure:
             # get trial structure then apply structure to TTLs
@@ -149,12 +151,12 @@ class VincentLoader:
                           'start_time': tr['start'],
                           'stop_time': tr['stop']}
                 if tr['isphotostim']:
-                    photostim_trial = {'sessiontrial': tr['trialNum']}
+                    photostim_trial = {'trial': tr['trialNum']}
                     ttl_idx = (ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])
-                    photostim_event = {'photostimtrial' : photostim_trial,
-                                    'photostim_event_id': ttl_id[ttl_idx],
-                                    'photostim_event_time': ttl_ts[ttl_idx]-tr['start'],
-                                    'photostim_power': photostim_power_array[ttl_idx]}
+                    photostim_event = {'trial': photostim_trial,
+                                       'photostim_event_id': ttl_id[ttl_idx],
+                                       'photostim_event_time': ttl_ts[ttl_idx]-tr['start'],
+                                       'photostim_power': photostim_power_array[ttl_idx]}
                 session_trials.append(trials)
                 photostim_trials.append(photostim_trial)
                 photostim_events.append(photostim_event)
@@ -164,13 +166,12 @@ class VincentLoader:
         else:
             project = []
 
-        return [{
-             'task': task,
-             'photostims' : photostims,
-             'session_trials': session_trials,
-             'photostim_trials': photostim_trials,
-             'photostim_events': photostim_events,
-             'project': project}]
+        return [{'task': task,
+                 'photostims': photostims,
+                 'session_trials': session_trials,
+                 'photostim_trials': photostim_trials,
+                 'photostim_events': photostim_events,
+                 'project': project}]
 
     def load_tracking(self, session_dir, subject_name, session_datetime):
         # TODO: decide where wheel position data from rotary encoder goes.
@@ -217,10 +218,8 @@ class VincentLoader:
                  'tracking_files': [tracking_fp.relative_to(self.root_data_dir)],
                  'WhiskerTracking': [{'whisker_idx': wid, **wdata} for wid, wdata in whiskers.items()]}]
 
-    def load_ephys(self, session_dir, subject_name, session_datetime):
-        datetime_str = datetime.strftime(session_datetime, '%Y%m%d%H%M%S')
-
-        analysis_dir = session_dir / 'Analysis' / f'{subject_name}_{datetime_str}'
+    def load_ephys(self, session_dir, subject_name, session_basename):
+        analysis_dir = session_dir / 'Analysis' / f'{subject_name}_{session_basename}'
         if not analysis_dir.exists():
             raise FileNotFoundError(f'{analysis_dir} not found!')
 

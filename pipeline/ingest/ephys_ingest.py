@@ -36,12 +36,11 @@ class EphysIngestion(dj.Imported):
         # ---- call loader ----
         session_dir = (session_ingest.InsertedSession & key).fetch1('sess_data_dir')
         session_dir = loader.root_data_dir / session_dir
-        session_datetime = (experiment.Session & key).proj(
-            session_datetime="cast(concat(session_date, ' ', session_time) as datetime)").fetch1('session_datetime')
+        session_basename = (experiment.Session & key).fetch1('session_basename')
 
         # Expecting the "loader.load_ephys()" method to return a list of dictionary
         # each member dict represents ephys data from one probe
-        all_ephys_data = loader.load_ephys(key, session_dir, key['subject_id'], session_datetime)
+        all_ephys_data = loader.load_ephys(key, session_dir, key['subject_id'], session_basename)
 
         # DO the table insert
         pass
