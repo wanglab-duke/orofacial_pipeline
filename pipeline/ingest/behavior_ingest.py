@@ -22,6 +22,8 @@ from pipeline.ingest.loaders.vincent import VincentLoader
 self = VincentLoader('D:/Vincent/', dj.config)
 key= {'subject_id': 'vIRt47', 'session': 7}
 """
+
+
 @schema
 class BehaviorIngestion(dj.Imported):
     definition = """
@@ -33,6 +35,7 @@ class BehaviorIngestion(dj.Imported):
         -> master
         filepath: varchar(255)  # relative filepath with respect to root data directory
         """
+
     # only run for sessions where the currently loaded LoaderClass is the same as the one used to load the experiment.Session
     key_source = session_ingest.InsertedSession & {'loader_method': loader.loader_name}
 
@@ -69,18 +72,20 @@ class BehaviorIngestion(dj.Imported):
             # ---- insert to relevant tables ----
             # insert to the main Tracking
             experiment.Task.insert1({**key, **behavior_data},
-              allow_direct_insert=True, ignore_extra_fields=True)
+                                    allow_direct_insert=True, ignore_extra_fields=True)
             experiment.Photostim.insert([{**key, **photostim} for photostim in behavior_data['photostims']],
-                allow_direct_insert=True, ignore_extra_fields=True)
+                                        allow_direct_insert=True, ignore_extra_fields=True)
             experiment.SessionTrial.insert([{**key, **trials} for trials in behavior_data['session_trials']],
-                allow_direct_insert=True, ignore_extra_fields=True)
-            experiment.PhotostimTrial.insert([{**key, **photostim_trial} for photostim_trial in behavior_data['photostim_trials']],
-                allow_direct_insert=True, ignore_extra_fields=True)
-            experiment.PhotostimEvent.insert([{**key, **photostim_event} for photostim_event in behavior_data['photostim_events']],
-                allow_direct_insert=True, ignore_extra_fields=True)
+                                           allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.PhotostimTrial.insert([{**key, **photostim_trial}
+                                              for photostim_trial in behavior_data['photostim_trials']],
+                                             allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.PhotostimEvent.insert([{**key, **photostim_event}
+                                              for photostim_event in behavior_data['photostim_events']],
+                                             allow_direct_insert=True, ignore_extra_fields=True)
             experiment.Project.insert1({**key, **behavior_data},
-                allow_direct_insert=True, ignore_extra_fields=True)
+                                       allow_direct_insert=True, ignore_extra_fields=True)
 
             # insert into self
             self.insert1(key)
-            log.info(f'Inserted tracking for: {key}')
+            log.info(f'Inserted behavior data for: {key}')
