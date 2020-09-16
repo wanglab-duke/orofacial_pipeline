@@ -8,6 +8,13 @@ schema = dj.schema(get_schema_name('ingestion'))
 
 loader = get_loader()
 
+"""
+For debugging purposes (to be removed)
+from pipeline.ingest import ephys_ingest
+from pipeline.ingest.loaders.vincent import VincentLoader
+self = VincentLoader('D:/Vincent/', dj.config)
+key= {'subject_id': 'vIRt47', 'session': 7}
+"""
 
 @schema
 class EphysIngestion(dj.Imported):
@@ -40,7 +47,10 @@ class EphysIngestion(dj.Imported):
 
         # Expecting the "loader.load_ephys()" method to return a list of dictionary
         # each member dict represents ephys data from one probe
-        all_ephys_data = loader.load_ephys(key, session_dir, key['subject_id'], session_basename)
+        all_ephys_data = loader.load_ephys(session_dir, key['subject_id'], session_basename)
 
-        # DO the table insert
-        pass
+        for ephys_data in all_ephys_data:
+            if 'probe' in ephys_data:
+                probe_key = (lab.Probe & {'probe': ephys_data['probe']}).fetch1()
+            elif 'probe_comment' in ephys_data:
+                probe_key = (lab.Probe & {'probe_comment': ephys_data['probe_comment']}).fetch1()
