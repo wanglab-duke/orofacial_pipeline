@@ -285,6 +285,9 @@ class ProbeType(dj.Lookup):
     @property
     def contents(self):
         return zip(['silicon_probe', 'tetrode_array', 'single electrode',
+                    'CNT ASSY-37 P1', 'CNT ASSY-37 P2', 'CNT ASSY-1 P1', 'CNT ASSY-1 P2',
+                    'CNT ASSY-116 P1', 'CNT ASSY-116 P2',
+                    'NN Buzsaki32', 'NN Buzsaki32 2FO',
                     'EMG', 'EEG',
                     'neuropixels 1.0 - 3A', 'neuropixels 1.0 - 3B',
                     'neuropixels 2.0 - SS', 'neuropixels 2.0 - MS'])
