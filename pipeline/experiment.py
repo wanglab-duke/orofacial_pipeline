@@ -92,6 +92,7 @@ class Photostim(dj.Manual):
         -> lab.BrainArea           # target brain area for photostim 
         """
 
+
 @schema
 class PhotostimBrainRegion(dj.Computed):
     definition = """

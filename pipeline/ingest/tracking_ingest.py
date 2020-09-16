@@ -42,7 +42,7 @@ class TrackingIngestion(dj.Imported):
 
         # Expecting the "loader.load_tracking()" method to return a list of dictionary
         # each member dict represents tracking data for one tracking device
-        all_tracking_data = loader.load_tracking(key, session_dir, key['subject_id'], session_datetime)
+        all_tracking_data = loader.load_tracking(session_dir, key['subject_id'], session_datetime)
 
         tracking_files = []
         with dj.conn().transaction:
