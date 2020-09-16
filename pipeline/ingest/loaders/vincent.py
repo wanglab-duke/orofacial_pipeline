@@ -136,7 +136,7 @@ class VincentLoader:
         # load .dat with numpy. Load into 2 columns: .reshape((-1, 2)); to transpose: .T
 
         # ---- get trial info ----
-        # (can be found in session's json file, or read from trial.csv. Frst solution is the most straightforward)
+        # (can be found in session's json file, or read from trial.csv. First solution is the most straightforward)
         power = photostims[0]['power']  # TODO: hardcoded using "power" from the 1st photostim protocol in the list, verify this
         trial_structure = sessinfo.get('trials')
         if trial_structure:
@@ -214,41 +214,39 @@ class VincentLoader:
         # each member dict represents tracking data for one tracking device
 
         return [{'tracking_device': self.tracking_camera,
-                 'tracking_timestamps': frames / self.fps,
+                 'tracking_timestamps': frames / self.tracking_fps,
                  'tracking_files': [tracking_fp.relative_to(self.root_data_dir)],
                  'WhiskerTracking': [{'whisker_idx': wid, **wdata} for wid, wdata in whiskers.items()]}]
 
     def load_ephys(self, session_dir, subject_name, session_basename):
-        analysis_dir = session_dir / 'Analysis' / f'{subject_name}_{session_basename}'
-        if not analysis_dir.exists():
-            raise FileNotFoundError(f'{analysis_dir} not found!')
+        spikesorting_dir = session_dir / 'SpikeSorting' / f'{session_basename}'
+        if not spikesorting_dir.exists():
+            raise FileNotFoundError(f'{spikesorting_dir} not found!')
 
-        # Expect 3 files per probe: .spikes.mat; recInfo.mat; .prb
+        # Expect 3 files per probe: _res.mat; .json; .prb
         # As an example, only expect one probe per session
-        jrclust_fp = list(analysis_dir.glob('*.spikes.mat'))
-        recinfo_fp = list(analysis_dir.glob('*recInfo.mat'))
-        prb_adaptor_fp = list(analysis_dir.glob('*.prb'))
+        jrclust_fp = list(spikesorting_dir.glob(f'{session_basename}*_res.mat'))
+        sessioninfo_fp = list(session_dir.glob(f'{session_basename}*.json'))
+        prb_adaptor_fp = list(spikesorting_dir.glob('*.prb'))
 
         if len(jrclust_fp) != 1:
             raise FileNotFoundError(f'Unable to find one JRCLUST file - Found: {jrclust_fp}')
-        if len(recinfo_fp) != 1:
-            raise FileNotFoundError(f'Unable to find one Recording Info file - Found: {recinfo_fp}')
+        if len(sessioninfo_fp) != 1:
+            raise FileNotFoundError(f'Unable to find one Recording Info file - Found: {sessioninfo_fp}')
         if len(prb_adaptor_fp) != 1:
             raise FileNotFoundError(f'Unable to find one Probe Adapter file - Found: {prb_adaptor_fp}')
 
-        # read recInfo file
-        recInfo = {}
-        with h5py.File(str(recinfo_fp[0]), mode='r') as f:  # ephys file
-            info = f['recInfo']
-            recInfo['fs'] = info['samplingRate'][0][0]
-            recInfo['channel_num'] = info['numRecChan'][0][0]
+        # read session info file
+        rec_info = {}
+        with open(sessioninfo_fp[0]) as f:
+            sessinfo = json.load(f)
+            rec_info['fs'] = sessinfo['samplingRate']
+            rec_info['channel_num'] = sessinfo['numRecChan']
+            rec_info['recording_time'] = datetime.strptime(sessinfo['date'], '%d-%b-%Y %H:%M:%S')
+            rec_info['recording_system'] = sessinfo['sys']
 
-            rec_date = str().join(chr(c) for c in info['date'])
-            recInfo['recording_time'] = datetime.strptime(rec_date, '%d_%b_%Y_%H_%M_%S')
-            recInfo['recording_system'] = str().join(chr(c) for c in info['sys'])
-
-        # read adapter file
-        adapter = {}
+        # read probe file
+        probe_params = {}
         with open(prb_adaptor_fp[0], mode='r') as f:
             for line in f.readlines():
                 if line.startswith('%') or line.startswith('\n'):
@@ -258,27 +256,31 @@ class VincentLoader:
                 v = split_vals[1]
                 try:
                     v_str = re.match('\[.*\]', v.strip()).group()
-                    adapter[k.strip()] = ast.literal_eval(v_str.replace(' ', ','))
+                    probe_params[k.strip()] = ast.literal_eval(v_str.replace(' ', ','))
                 except:
-                    adapter[k.strip()] = v.strip()
+                    probe_params[k.strip()] = v.strip()
 
-        channel_map = np.array(adapter['channels'])
+        channel_map = np.array(probe_params['channels'])
 
         # read JRCLUST results
         jrclust = JRCLUST(jrclust_fp[0])
 
         # probe type
-        probe_type, _, adapter_type = prb_adaptor_fp[0].stem.split('_')
+        probe_id = sessinfo['ephys']['probe']
+        # TODO: resolve this point:
+        #  pass along probe_id to ephys_ingest? Need info from lab.Probe to interpret further, or adjust exported info
+        #probe_type, _, adapter_type = prb_adaptor_fp[0].stem.split('_')
+        adapter_type = sessinfo['ephys']['adapter']
 
-        probe_data = {'probe_type': probe_type,
-                      'sampling_rate': recInfo['fs'],
-                      'channel_num': recInfo['channel_num'],
-                      'recording_time': recInfo['recording_time'],
-                      'recording_system': recInfo['recording_system'],
+        probe_data = {'probe_id': probe_id,
+                      'sampling_rate': rec_info['fs'],
+                      'channel_num': rec_info['channel_num'],
+                      'recording_time': rec_info['recording_time'],
+                      'recording_system': rec_info['recording_system'],
                       'clustering_method': jrclust.JRCLUST_version,
                       'unit': jrclust.data['units'],
                       'unit_quality': jrclust.data['unit_notes'],
-                      'electrode': channel_map[jrclust.data['vmax_unit_site']-1],
+                      'electrode': jrclust.data['vmax_unit_site']-1, # no need to use mapping, it's already remapped
                       'unit_posx': jrclust.data['unit_xpos'],
                       'unit_posy': jrclust.data['unit_ypos'],
                       'spike_times': jrclust.data['spikes'],
@@ -287,7 +289,7 @@ class VincentLoader:
                       'unit_amp': jrclust.data['unit_amp'],
                       'unit_snr': jrclust.data['unit_snr'],
                       'waveform': jrclust.data['unit_wav'],  # (unit x channel x sample)
-                      'ephys_files': [fp.relative_to(self.root_data_dir) for fp in (jrclust_fp, recinfo_fp, prb_adaptor_fp)]
+                      'ephys_files': [fp.relative_to(self.root_data_dir) for fp in (jrclust_fp, prb_adaptor_fp)]
                       }
 
         return [probe_data]  # return a list of dictionary, one for data from one probe
