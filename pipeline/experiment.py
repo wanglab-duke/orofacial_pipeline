@@ -72,7 +72,8 @@ class Photostim(dj.Manual):
     photo_stim :  smallint  # photostim protocol number
     ---
     -> lab.PhotostimDevice
-    power : decimal(4,1)  # mW/mm²
+    power : decimal(4,1)  # Light power at fiber tip (mW) 
+    irradiance=null : decimal(4,1) # mW/mm² (intensity at target location)
     pulse_duration=null:  decimal(8,4)   # (s)
     pulse_frequency=null: decimal(8,4)   # (Hz)
     pulses_per_train=null: smallint #
