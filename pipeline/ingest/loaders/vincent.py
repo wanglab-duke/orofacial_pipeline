@@ -266,13 +266,12 @@ class VincentLoader:
         jrclust = JRCLUST(jrclust_fp[0])
 
         # probe type
-        probe_id = sessinfo['ephys']['probe']
-        # TODO: resolve this point:
-        #  pass along probe_id to ephys_ingest? Need info from lab.Probe to interpret further, or adjust exported info
-        #probe_type, _, adapter_type = prb_adaptor_fp[0].stem.split('_')
+        # probe_id = []  # probe id will be determine from probe_comment in ephys_ingest
+        probe_comment = sessinfo['ephys']['probe']
         adapter_type = sessinfo['ephys']['adapter']
 
-        probe_data = {'probe_id': probe_id,
+        probe_data = {'probe_comment': probe_comment,
+                      'adapter_type': adapter_type,
                       'sampling_rate': rec_info['fs'],
                       'channel_num': rec_info['channel_num'],
                       'recording_time': rec_info['recording_time'],
@@ -289,7 +288,7 @@ class VincentLoader:
                       'unit_amp': jrclust.data['unit_amp'],
                       'unit_snr': jrclust.data['unit_snr'],
                       'waveform': jrclust.data['unit_wav'],  # (unit x channel x sample)
-                      'ephys_files': [fp.relative_to(self.root_data_dir) for fp in (jrclust_fp, prb_adaptor_fp)]
+                      'ephys_files': [fp[0].relative_to(self.root_data_dir) for fp in (jrclust_fp, sessioninfo_fp, prb_adaptor_fp)]
                       }
 
         return [probe_data]  # return a list of dictionary, one for data from one probe
