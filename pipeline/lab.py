@@ -291,6 +291,136 @@ class ProbeType(dj.Lookup):
                     'EMG', 'EEG',
                     'neuropixels 1.0 - 3A', 'neuropixels 1.0 - 3B',
                     'neuropixels 2.0 - SS', 'neuropixels 2.0 - MS'])
+    @staticmethod
+    def create_silicon_probe(probe_type='CNT ASSY-37 P2'):
+        """
+        Create `ProbeType` and `Electrode` for silicon probe commonly used in the lab.
+        For electrode location, the (0, 0) is the bottom left corner of the probe (ignore the tip portion)
+        Electrode numbering is 1-indexing
+        """
+
+        CNT_PSeries = {'x_coords': np.array([0,22.5,0,22.5,0,22.5,0,22.5,0,22.5,0,22.5,0,22.5,0,22.5]),
+                        'y_coords': np.array([0,12.5,25,37.5,50,62.5,75,87.5,100,112.5,125,137.5,150,162.5,175,187.5]),
+                        'shank_cols': np.array([0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]),
+                        'shank_rows': np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])}
+
+        NN_Buzsaki32 = {'x_coords': np.array([20.5,12,29,8,33,4,37,0]),
+                        'y_coords': np.array([0,20,40,60,80,100,120,140]),
+                        'shank_cols': np.array([4,3,5,2,6,1,7,0]),
+                        'shank_rows': np.array([0,1,2,3,4,5,6,7])}
+
+        def build_electrodes(site_count, x_coords, y_coords, shank_cols, shank_rows, shank_count, shank_spacing=250):
+            """
+            :param site_count: site count per shank
+            :param x_coords: (um) horizontal location of electrodes on shank
+            :param y_coords: (um) vertical location of electrodes on shank
+            :param shank_cols: column index of electrodes on shank
+            :param shank_rows: row index of electrodes on shank
+            :param shank_count: number of shank
+            :param shank_spacing: spacing between shanks
+            :return:
+            """
+
+            sp_electrodes = []
+            for shank_no in range(shank_count):
+                sp_electrodes.extend([{'electrode': (site_count * shank_no) + e_id + 1,  # electrode number is 1-based index
+                                        'shank': shank_no + 1,  # shank number is 1-based index
+                                        'shank_col': c_id + 1,  # column number is 1-based index
+                                        'shank_row': r_id + 1,  # row number is 1-based index
+                                        'x_coord': x + (shank_no * shank_spacing),
+                                        'y_coord': y,
+                                        'z_coord': 0} for e_id, (c_id, r_id, x, y) in enumerate(
+                    zip(shank_cols, shank_rows, x_coords, y_coords))])
+
+            return sp_electrodes
+
+        # ---- CNT ASSY-37 P1 ----
+        if probe_type == 'CNT ASSY-37 P1':
+            electrodes = build_electrodes(site_count=16, x_coords=CNT_PSeries['x_coords'], y_coords=CNT_PSeries['y_coords'],
+                                         shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
+                                          shank_count=2, shank_spacing=250)
+
+            probe_type = {'CNT ASSY-37 P1'}
+            with ProbeType.connection.transaction:
+                ProbeType.insert1(probe_type, skip_duplicates=True)
+                ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
+
+        # ---- CNT ASSY-37 P2 ----
+        if probe_type == 'CNT ASSY-37 P2':
+            electrodes = build_electrodes(site_count=16, x_coords=CNT_PSeries['x_coords'], y_coords=CNT_PSeries['y_coords'],
+                                         shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
+                                          shank_count=2, shank_spacing=250)
+
+            probe_type = {'CNT ASSY-37 P2'}
+            with ProbeType.connection.transaction:
+                ProbeType.insert1(probe_type, skip_duplicates=True)
+                ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
+
+        # ---- CNT ASSY-1 P1 ----
+        if probe_type == 'CNT ASSY-1 P1':
+            electrodes = build_electrodes(site_count=16, x_coords=CNT_PSeries['x_coords'], y_coords=CNT_PSeries['y_coords'],
+                                         shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
+                                          shank_count=1)
+
+            probe_type = {'CNT ASSY-1 P1'}
+            with ProbeType.connection.transaction:
+                ProbeType.insert1(probe_type, skip_duplicates=True)
+                ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
+
+        # ---- CNT ASSY-1 P2 ----
+        if probe_type == 'CNT ASSY-1 P1':
+            electrodes = build_electrodes(site_count=16, x_coords=CNT_PSeries['x_coords'], y_coords=CNT_PSeries['y_coords'],
+                                         shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
+                                          shank_count=1)
+
+            probe_type = {'CNT ASSY-1 P2'}
+            with ProbeType.connection.transaction:
+                ProbeType.insert1(probe_type, skip_duplicates=True)
+                ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
+
+        # ---- CNT ASSY-116 P1 ----
+        if probe_type == 'CNT ASSY-116 P1':
+            electrodes = build_electrodes(site_count=16, x_coords=CNT_PSeries['x_coords'], y_coords=CNT_PSeries['y_coords'],
+                                         shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
+                                          shank_count=2, shank_spacing=250)
+
+            probe_type = {'CNT ASSY-116 P1'}
+            with ProbeType.connection.transaction:
+                ProbeType.insert1(probe_type, skip_duplicates=True)
+                ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
+
+        # ---- CNT ASSY-116 P2 ----
+        if probe_type == 'CNT ASSY-116 P2':
+            electrodes = build_electrodes(site_count=16, x_coords=CNT_PSeries['x_coords'], y_coords=CNT_PSeries['y_coords'],
+                                         shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
+                                          shank_count=2, shank_spacing=250)
+
+            probe_type = {'CNT ASSY-116 P2'}
+            with ProbeType.connection.transaction:
+                ProbeType.insert1(probe_type, skip_duplicates=True)
+                ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)     
+
+        # ---- NN Buzsaki32 ----
+        if probe_type == 'NN Buzsaki32':
+            electrodes = build_electrodes(site_count=8, x_coords=NN_Buzsaki32['x_coords'], y_coords=NN_Buzsaki32['y_coords'],
+                                         shank_cols=NN_Buzsaki32['shank_cols'], shank_rows=NN_Buzsaki32['shank_rows'],
+                                          shank_count=4, shank_spacing=200)
+
+            probe_type = {'NN Buzsaki32'}
+            with ProbeType.connection.transaction:
+                ProbeType.insert1(probe_type, skip_duplicates=True)
+                ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)  
+
+        # ---- NN Buzsaki32 2FO ----
+        if probe_type == 'NN Buzsaki32 2FO':
+            electrodes = build_electrodes(site_count=8, x_coords=NN_Buzsaki32['x_coords'], y_coords=NN_Buzsaki32['y_coords'],
+                                         shank_cols=NN_Buzsaki32['shank_cols'], shank_rows=NN_Buzsaki32['shank_rows'],
+                                          shank_count=4, shank_spacing=200)
+
+            probe_type = {'NN Buzsaki32 2FO'}
+            with ProbeType.connection.transaction:
+                ProbeType.insert1(probe_type, skip_duplicates=True)
+                ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)             
 
     @staticmethod
     def create_neuropixels_probe(probe_type='neuropixels 1.0 - 3A'):
@@ -304,7 +434,7 @@ class ProbeType(dj.Lookup):
                              shank_count=1, shank_spacing=250):
             """
             :param site_count: site count per shank
-            :param col_spacing: (um) horrizontal spacing between sites
+            :param col_spacing: (um) horizontal spacing between sites
             :param row_spacing: (um) vertical spacing between columns
             :param white_spacing: (um) offset spacing
             :param col_count: number of column per shank
