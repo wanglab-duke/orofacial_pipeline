@@ -18,34 +18,37 @@
 	"export": {
 		"directory":"D:\\Vincent\\vIRt47\\vIRt47_0805\\SpikeSorting\\vIRt47_0805_5954",
 		"binFile":"vIRt47_0805_5954_export.bin",
-		"spikesFile":"vIRt47_0805_5954_spikes.mat"},
+		"spikesFile":"vIRt47_0805_5954_spikes.mat",
+		"TTLs":["vIRt47_0805_5954_TTLs.dat",
+		"vIRt47_0805_5954_trial.csv"],
+		"vSync":"vIRt47_0805_5954_vSyncTTLs.dat"},
 	"likelyVideoFile": "vIRt47_0805_5954_20200805-141945_HSCam.avi",
 	"ephys": {
-		"probe":"Probe 44 32Ch CN",
-		"adapter":"CN Adapter",
+		"probe":"Probe44",
+		"adapter":"CNT_A32OM32",
 		"AP":-6.6,
 		"ML":-0.9,
 		"depth":-5954},
 	"photoStim": {
 		"stimPower":10,
 		"stimFreq":10,
-		"pulseDur":0.005,
+		"pulseDur":0.0049,
 		"stimDevice":"Cobolt473",
 		"protocolNum":0,
 		"trainLength":400},
 	"trials": [{
 		"trialNum":0,
 		"start":0,
-		"stop":416.76840000000004,
+		"stop":416.768402,
 		"isphotostim":false},
 		{
 		"trialNum":1,
-		"start":416.76840000000004,
-		"stop":475.68326666666667,
+		"start":416.768402,
+		"stop":475.683289,
 		"isphotostim":true},
 		{
 		"trialNum":2,
-		"start":475.68326666666667,
+		"start":475.683289,
 		"stop":560.35163333333333,
 		"isphotostim":false}]
 }
