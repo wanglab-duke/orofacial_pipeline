@@ -157,9 +157,9 @@ class VincentLoader:
                                        'photostim_event_id': ttl_id[ttl_idx],
                                        'photostim_event_time': ttl_ts[ttl_idx]-tr['start'],
                                        'photostim_power': photostim_power_array[ttl_idx]}
+                    photostim_trials.append(photostim_trial)
+                    photostim_events.append(photostim_event)
                 session_trials.append(trials)
-                photostim_trials.append(photostim_trial)
-                photostim_events.append(photostim_event)
 
         if subject_name.find('vIRt'):
             project = 'vIRt'
@@ -291,4 +291,4 @@ class VincentLoader:
                       'ephys_files': [fp[0].relative_to(self.root_data_dir) for fp in (jrclust_fp, sessioninfo_fp, prb_adaptor_fp)]
                       }
 
-        return [probe_data]  # return a list of dictionary, one for data from one probe
+        return [probe_data]  # return a list of dictionaries, one for the data from each probe
