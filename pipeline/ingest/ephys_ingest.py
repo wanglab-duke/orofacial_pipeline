@@ -1,5 +1,5 @@
 import datajoint as dj
-from pipeline import lab, experiment, tracking
+from pipeline import lab, experiment, ephys
 from pipeline import get_schema_name
 
 from pipeline.ingest import session_ingest, get_loader
@@ -54,3 +54,10 @@ class EphysIngestion(dj.Imported):
                 probe_key = (lab.Probe & {'probe': ephys_data['probe']}).fetch1()
             elif 'probe_comment' in ephys_data:
                 probe_key = (lab.Probe & {'probe_comment': ephys_data['probe_comment']}).fetch1()
+
+            ephys.ProbeInsertion.insert(
+                [{**probe_key} ],
+                allow_direct_insert=True, ignore_extra_fields=True)
+
+            
+
