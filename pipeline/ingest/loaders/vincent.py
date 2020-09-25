@@ -284,7 +284,7 @@ class VincentLoader:
                       'clustering_note': '',
                       'unit': jrclust.data['units'],
                       'unit_quality': jrclust.data['unit_notes'],
-                      'unit_electrode': jrclust.data['vmax_unit_site']-1, # no need to use mapping, it's already remapped
+                      'unit_electrode': jrclust.data['vmax_unit_site'], # no need to use mapping, it's already remapped
                       'unit_posx': jrclust.data['unit_xpos'],
                       'unit_posy': jrclust.data['unit_ypos'],
                       'spike_times': jrclust.data['spikes'],

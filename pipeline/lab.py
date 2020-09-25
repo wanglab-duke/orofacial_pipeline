@@ -291,6 +291,7 @@ class ProbeType(dj.Lookup):
                     'EMG', 'EEG',
                     'neuropixels 1.0 - 3A', 'neuropixels 1.0 - 3B',
                     'neuropixels 2.0 - SS', 'neuropixels 2.0 - MS'])
+
     @staticmethod
     def create_silicon_probe(probe_type='CNT ASSY-37 P2'):
         """
@@ -340,7 +341,7 @@ class ProbeType(dj.Lookup):
                                          shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
                                           shank_count=2, shank_spacing=250)
 
-            probe_type = {'CNT ASSY-37 P1'}
+            probe_type = {'probe_type': 'CNT ASSY-37 P1'}
             with ProbeType.connection.transaction:
                 ProbeType.insert1(probe_type, skip_duplicates=True)
                 ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
@@ -351,7 +352,7 @@ class ProbeType(dj.Lookup):
                                          shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
                                           shank_count=2, shank_spacing=250)
 
-            probe_type = {'CNT ASSY-37 P2'}
+            probe_type = {'probe_type': 'CNT ASSY-37 P2'}
             with ProbeType.connection.transaction:
                 ProbeType.insert1(probe_type, skip_duplicates=True)
                 ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
@@ -362,7 +363,7 @@ class ProbeType(dj.Lookup):
                                          shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
                                           shank_count=1)
 
-            probe_type = {'CNT ASSY-1 P1'}
+            probe_type = {'probe_type': 'CNT ASSY-1 P1'}
             with ProbeType.connection.transaction:
                 ProbeType.insert1(probe_type, skip_duplicates=True)
                 ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
@@ -373,7 +374,7 @@ class ProbeType(dj.Lookup):
                                          shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
                                           shank_count=1)
 
-            probe_type = {'CNT ASSY-1 P2'}
+            probe_type = {'probe_type': 'CNT ASSY-1 P2'}
             with ProbeType.connection.transaction:
                 ProbeType.insert1(probe_type, skip_duplicates=True)
                 ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
@@ -384,7 +385,7 @@ class ProbeType(dj.Lookup):
                                          shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
                                           shank_count=2, shank_spacing=250)
 
-            probe_type = {'CNT ASSY-116 P1'}
+            probe_type = {'probe_type': 'CNT ASSY-116 P1'}
             with ProbeType.connection.transaction:
                 ProbeType.insert1(probe_type, skip_duplicates=True)
                 ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)
@@ -395,7 +396,7 @@ class ProbeType(dj.Lookup):
                                          shank_cols=CNT_PSeries['shank_cols'], shank_rows=CNT_PSeries['shank_rows'],
                                           shank_count=2, shank_spacing=250)
 
-            probe_type = {'CNT ASSY-116 P2'}
+            probe_type = {'probe_type': 'CNT ASSY-116 P2'}
             with ProbeType.connection.transaction:
                 ProbeType.insert1(probe_type, skip_duplicates=True)
                 ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)     
@@ -406,7 +407,7 @@ class ProbeType(dj.Lookup):
                                          shank_cols=NN_Buzsaki32['shank_cols'], shank_rows=NN_Buzsaki32['shank_rows'],
                                           shank_count=4, shank_spacing=200)
 
-            probe_type = {'NN Buzsaki32'}
+            probe_type = {'probe_type': 'NN Buzsaki32'}
             with ProbeType.connection.transaction:
                 ProbeType.insert1(probe_type, skip_duplicates=True)
                 ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)  
@@ -417,7 +418,7 @@ class ProbeType(dj.Lookup):
                                          shank_cols=NN_Buzsaki32['shank_cols'], shank_rows=NN_Buzsaki32['shank_rows'],
                                           shank_count=4, shank_spacing=200)
 
-            probe_type = {'NN Buzsaki32 2FO'}
+            probe_type = {'probe_type': 'NN Buzsaki32 2FO'}
             with ProbeType.connection.transaction:
                 ProbeType.insert1(probe_type, skip_duplicates=True)
                 ProbeType.Electrode.insert([{**probe_type, **e} for e in electrodes], skip_duplicates=True)             

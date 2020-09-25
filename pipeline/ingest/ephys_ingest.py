@@ -61,12 +61,12 @@ class EphysIngestion(dj.Imported):
         ephys_files = []
 
         for insertion_number, ephys_data in enumerate(all_ephys_data):
-            ephys_files.append(ephys_data.pop('ephys_files'))
+            ephys_files.extend(ephys_data.pop('ephys_files'))
 
             if 'probe' in ephys_data:
-                probe_key = (lab.Probe & {'probe': ephys_data['probe']}).fetch1()
+                probe_key = (lab.Probe & {'probe': ephys_data['probe']}).fetch1('KEY')
             elif 'probe_comment' in ephys_data:
-                probe_key = (lab.Probe & {'probe_comment': ephys_data['probe_comment']}).fetch1()
+                probe_key = (lab.Probe & {'probe_comment': ephys_data['probe_comment']}).fetch1('KEY')
 
             # ---- ProbeInsertion ----
             # From: probe and the electrodes used for recording
@@ -90,7 +90,8 @@ class EphysIngestion(dj.Imported):
                                       'clustering_time': ephys_data['clustering_time'],
                                       'quality_control': ephys_data['quality_control'],
                                       'manual_curation': ephys_data['manual_curation'],
-                                      'clustering_note': ephys_data['clustering_note']})
+                                      'clustering_note': ephys_data['clustering_note']},
+                                     allow_direct_insert=True)
 
             # ---- Units ----
             units = ephys_data['unit']
@@ -111,7 +112,8 @@ class EphysIngestion(dj.Imported):
             unit_spike_depths = np.array([spike_depths[np.where(units == u)] for u in set(units)])
 
             # electrode
-            chn2electrodes = {eid: (lab.ProbeType.Electrode & probe_key & {'electrode': eid}).fetch1('KEY')
+            q_electrodes = lab.ElectrodeConfig.Electrode & e_config_key
+            chn2electrodes = {eid: (q_electrodes & {'electrode': eid}).fetch1('KEY')
                               for eid in ephys_data['electrodes']}
 
             unit_list = []
@@ -135,6 +137,8 @@ class EphysIngestion(dj.Imported):
                                       'unit': u,
                                       'waveform': ephys_data['waveform'][i][wf_chn_idx]})
 
+            ephys.Unit.insert(unit_list, allow_direct_insert=True)
+            ephys.Unit.Waveform.insert(waveform_list, allow_direct_insert=True)
 
         # insert into self
         self.insert1(key)
@@ -152,7 +156,9 @@ def _gen_electrode_config(probe_key, electrode_list):
     Insert into ElectrodeConfig table if not yet existed
     Return the ElectrodeConfig key
     """
-    q_electrodes = lab.ProbeType.Electrode & probe_key
+    probe_type = (lab.ProbeType & (lab.Probe & probe_key)).fetch1('KEY')
+
+    q_electrodes = lab.ProbeType.Electrode & (lab.Probe & probe_key)
     eg_members = [(q_electrodes & {'electrode': eid}).fetch1('KEY') for eid in electrode_list]
 
     # ---- compute hash for the electrode config (hash of dict of all ElectrodeConfig.Electrode) ----
@@ -162,14 +168,13 @@ def _gen_electrode_config(probe_key, electrode_list):
     el_jumps = [-1] + np.where(np.diff(el_list) > 1)[0].tolist() + [len(el_list) - 1]
     ec_name = '; '.join([f'{el_list[s + 1]}-{el_list[e]}' for s, e in zip(el_jumps[:-1], el_jumps[1:])])
 
-    e_config = {**probe_key, 'electrode_config_name': ec_name}
+    e_config = {**probe_type, 'electrode_config_name': probe_type['probe_type'] + ' - chn: ' + ec_name}
 
     # ---- make new ElectrodeConfig if needed ----
     if not (lab.ElectrodeConfig & {'electrode_config_hash': ec_hash}):
-        lab.ElectrodeConfig.insert1({**e_config, 'electrode_config_hash': ec_hash})
-        lab.ElectrodeConfig.ElectrodeGroup.insert1({**e_config, 'electrode_group': 0})  # fixed electrode_group = 0
-        lab.ElectrodeConfig.Electrode.insert({**e_config, **m} for m in eg_members)
+        lab.ElectrodeConfig.insert1({**e_config, 'electrode_config_hash': ec_hash}, ignore_extra_fields=True)
+        lab.ElectrodeConfig.ElectrodeGroup.insert1({**e_config, 'electrode_group': 0}, ignore_extra_fields=True)  # fixed electrode_group = 0
+        lab.ElectrodeConfig.Electrode.insert([{**e_config, **m, 'electrode_group': 0}
+                                              for m in eg_members], ignore_extra_fields=True)
 
     return e_config
-
-

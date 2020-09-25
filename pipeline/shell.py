@@ -88,10 +88,13 @@ def ingest_all(subject_id):
     from .ingest import behavior_ingest, tracking_ingest, ephys_ingest
     from .ingest.session_ingest import load_all_sessions
 
+    print('=========== SESSION INGESTION ===========')
     load_all_sessions(subject_id)
-
+    print('=========== BEHAVIOR INGESTION ===========')
     behavior_ingest.BehaviorIngestion.populate(**populate_settings)
+    print('=========== TRACKING INGESTION ===========')
     tracking_ingest.TrackingIngestion.populate(**populate_settings)
+    print('=========== EPHYS INGESTION ===========')
     ephys_ingest.EphysIngestion.populate(**populate_settings)
 
 

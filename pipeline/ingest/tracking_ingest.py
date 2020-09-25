@@ -48,7 +48,7 @@ class TrackingIngestion(dj.Imported):
 
         for tracking_data in all_tracking_data:
             # ---- extract information from the imported data (from loader class) ----
-            tracking_files.append(tracking_data.pop('tracking_files'))
+            tracking_files.extend(tracking_data.pop('tracking_files'))
             part_tbl_data = {tbl_name: tracking_data.pop(tbl_name)
                              for tbl_name in tracking.Tracking.tracking_features if tbl_name in tracking_data}
 
