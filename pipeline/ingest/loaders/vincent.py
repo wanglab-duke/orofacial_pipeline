@@ -244,6 +244,7 @@ class VincentLoader:
             rec_info['channel_num'] = sessinfo['numRecChan']
             rec_info['recording_time'] = datetime.strptime(sessinfo['date'], '%d-%b-%Y %H:%M:%S')
             rec_info['recording_system'] = sessinfo['sys']
+            rec_info['chanList'] = sessinfo['chanList']
 
         # read probe file
         probe_params = {}
@@ -268,18 +269,22 @@ class VincentLoader:
         # probe type
         # probe_id = []  # probe id will be determine from probe_comment in ephys_ingest
         probe_comment = sessinfo['ephys']['probe']
-        adapter_type = sessinfo['ephys']['adapter']
+        adapter = sessinfo['ephys']['adapter']
 
         probe_data = {'probe_comment': probe_comment,
-                      'adapter_type': adapter_type,
+                      'adapter': adapter,
                       'sampling_rate': rec_info['fs'],
-                      'channel_num': rec_info['channel_num'],
+                      'electrodes': rec_info['chanList'],
                       'recording_time': rec_info['recording_time'],
-                      'recording_system': rec_info['recording_system'],
+                      'headstage': rec_info['recording_system'],
                       'clustering_method': jrclust.JRCLUST_version,
+                      'clustering_time': jrclust.creation_time,
+                      'quality_control': False,
+                      'manual_curation': True,
+                      'clustering_note': '',
                       'unit': jrclust.data['units'],
                       'unit_quality': jrclust.data['unit_notes'],
-                      'electrode': jrclust.data['vmax_unit_site']-1, # no need to use mapping, it's already remapped
+                      'unit_electrode': jrclust.data['vmax_unit_site']-1, # no need to use mapping, it's already remapped
                       'unit_posx': jrclust.data['unit_xpos'],
                       'unit_posy': jrclust.data['unit_ypos'],
                       'spike_times': jrclust.data['spikes'],
