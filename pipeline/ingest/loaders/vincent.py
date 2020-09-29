@@ -270,13 +270,14 @@ class VincentLoader:
         # probe_id = []  # probe id will be determine from probe_comment in ephys_ingest
         probe_comment = sessinfo['ephys']['probe']
         adapter = sessinfo['ephys']['adapter']
+        headstage = rec_info['recording_system'] + '_' + adapter[adapter.find('OM') + 2:]
 
         probe_data = {'probe_comment': probe_comment,
                       'adapter': adapter,
                       'sampling_rate': rec_info['fs'],
                       'electrodes': rec_info['chanList'],
                       'recording_time': rec_info['recording_time'],
-                      'headstage': rec_info['recording_system'],
+                      'headstage': headstage,
                       'clustering_method': jrclust.JRCLUST_version,
                       'clustering_time': jrclust.creation_time,
                       'quality_control': False,
