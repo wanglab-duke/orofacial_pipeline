@@ -2,6 +2,7 @@ import numpy as np
 import h5py
 import re
 import pathlib
+from datetime import datetime
 
 
 class JRCLUST:
@@ -17,6 +18,7 @@ class JRCLUST:
                 raise ValueError('Unknown JRClust version')
 
         self._data = None
+        self.creation_time = datetime.fromtimestamp(self.filepath.stat().st_ctime)
 
     @property
     def data(self):

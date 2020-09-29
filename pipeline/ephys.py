@@ -144,7 +144,6 @@ class Unit(dj.Imported):
     -> Clustering
     unit: smallint
     ---
-    unit_uid : int # unique across sessions/animals
     -> UnitQualityType
     -> lab.ElectrodeConfig.Electrode # site on the electrode for which the unit has the largest amplitude
     unit_posx : double # (um) estimated x position of the unit relative to probe's tip (0,0)
@@ -153,7 +152,7 @@ class Unit(dj.Imported):
     spike_sites : longblob  # array of electrode associated with each spike
     spike_depths : longblob # (um) array of depths associated with each spike
     unit_amp : double
-    unit_snr : double
+    unit_snr=null : double
     """
 
     class Waveform(dj.Part):
