@@ -31,6 +31,17 @@ class TrackingIngestion(dj.Imported):
     key_source = session_ingest.InsertedSession & {'loader_method': loader.loader_name}
 
     def make(self, key):
+        '''
+        Per tracking device, insert data into:
+            + TrackingDevice
+            + Tracking
+                + tracking_timestamps
+                -- any of the following subclasses -- 
+                + PositionTracking
+                + ObjectTracking
+                + ObjectPoint
+                + WhiskerTracking
+        '''
         # ---- call loader ----
         session_dir = (session_ingest.InsertedSession & key).fetch1('sess_data_dir')
         session_dir = loader.root_data_dir / session_dir
