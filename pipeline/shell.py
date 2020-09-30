@@ -91,11 +91,11 @@ def ingest_all(subject_id):
     print('=========== SESSION INGESTION ===========')
     load_all_sessions(subject_id)
     print('=========== BEHAVIOR INGESTION ===========')
-    behavior_ingest.BehaviorIngestion.populate(**populate_settings)
+    behavior_ingest.BehaviorIngestion.populate({'subject_id': subject_id}, **populate_settings)
     print('=========== TRACKING INGESTION ===========')
-    tracking_ingest.TrackingIngestion.populate(**populate_settings)
+    tracking_ingest.TrackingIngestion.populate({'subject_id': subject_id}, **populate_settings)
     print('=========== EPHYS INGESTION ===========')
-    ephys_ingest.EphysIngestion.populate(**populate_settings)
+    ephys_ingest.EphysIngestion.populate({'subject_id': subject_id}, **populate_settings)
 
 
 # ==== Action Mapper - for interactive shell ====
