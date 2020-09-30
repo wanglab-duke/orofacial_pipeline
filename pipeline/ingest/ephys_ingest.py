@@ -37,6 +37,9 @@ class EphysIngestion(dj.Imported):
         filepath: varchar(255)  # relative filepath with respect to root data directory
         """
 
+    # only run for sessions where the currently loaded LoaderClass is the same as the one used to load the experiment.Session
+    key_source = session_ingest.InsertedSession & {'loader_method': loader.loader_name}
+
     def make(self, key):
         """
         Per probe, insert data into:
@@ -163,6 +166,8 @@ def _gen_electrode_config(probe_key, electrode_list):
  #      lab.ProbeType.create_silicon_probe(probe_type)
  #      q_electrodes = lab.ProbeType.Electrode & (lab.Probe & probe_key)
     eg_members = [(q_electrodes & {'electrode': eid}).fetch1('KEY') for eid in electrode_list]
+
+    assert len(eg_members) != 0, '0 electrode found in generating ElectrodeConfig'
 
     # ---- compute hash for the electrode config (hash of dict of all ElectrodeConfig.Electrode) ----
     ec_hash = dict_to_hash({k['electrode']: k for k in eg_members})
