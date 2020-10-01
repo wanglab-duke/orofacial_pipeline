@@ -12,7 +12,7 @@ from .jrclust import JRCLUST
 
 
 """
-This module houses a LoaderClass for Vincent's data format
+This module houses a LoaderClass. Adjust it to conform to your data format
     Input: 
         + root_data_dir: root directory of the data for all subjects
         + config: configuration parameters (typically, dj.config) 
@@ -104,9 +104,9 @@ Any loader class must have the following interfaces:
 """
 
 
-class VincentLoader:
+class TemplateLoader:
 
-    tracking_camera = 'WT_Camera_Vincent 0'
+    tracking_camera = 'My_Camera'
     tracking_fps = 500
     default_task = 'hf wheel'
 
