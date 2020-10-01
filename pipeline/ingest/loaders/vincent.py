@@ -215,7 +215,7 @@ class VincentLoader:
                     photostim_events.append(photostim_event)
                 session_trials.append(trials)
 
-        if subject_name.find('vIRt'):
+        if subject_name.find('vIRt') >= 0:
             project = 'vIRt'
         else:
             project = []
@@ -225,7 +225,7 @@ class VincentLoader:
                  'session_trials': session_trials,
                  'photostim_trials': photostim_trials,
                  'photostim_events': photostim_events,
-                 'project': project}]
+                 'project_name': project}]
 
     def load_tracking(self, session_dir, subject_name, session_datetime):
         # TODO: decide where wheel position data from rotary encoder goes.
