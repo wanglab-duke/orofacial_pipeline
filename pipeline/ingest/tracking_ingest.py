@@ -1,7 +1,7 @@
 import datajoint as dj
 import logging
 
-from pipeline import lab, experiment, tracking
+from pipeline import experiment, tracking
 from pipeline import get_schema_name
 
 from pipeline.ingest import session_ingest, get_loader
@@ -14,6 +14,14 @@ log.setLevel(logging.DEBUG)
 
 loader = get_loader()
 
+"""
+For debugging purposes (to be removed)
+from pipeline.ingest import tracking_ingest
+from pipeline.ingest.loaders.vincent import VincentLoader
+self = VincentLoader('Z:/Vincent/Ephys/', dj.config)
+key= {'subject_id': 'vIRt49', 'session': 1}
+subject_name = 'vIRt49'
+"""
 
 @schema
 class TrackingIngestion(dj.Imported):
@@ -31,18 +39,30 @@ class TrackingIngestion(dj.Imported):
     key_source = session_ingest.InsertedSession & {'loader_method': loader.loader_name}
 
     def make(self, key):
+        '''
+        Per tracking device, insert data into:
+            + TrackingDevice
+            + Tracking
+                + tracking_timestamps
+                -- any of the following subclasses -- 
+                + PositionTracking
+                + ObjectTracking
+                + ObjectPoint
+                + WhiskerTracking
+        '''
         # ---- call loader ----
         session_dir = (session_ingest.InsertedSession & key).fetch1('sess_data_dir')
         session_dir = loader.root_data_dir / session_dir
-        session_datetime = (experiment.Session & key).proj(
-            session_datetime="cast(concat(session_date, ' ', session_time) as datetime)").fetch1('session_datetime')
+        #session_datetime = (experiment.Session & key).proj(
+        #    session_datetime="cast(concat(session_date, ' ', session_time) as datetime)").fetch1('session_datetime')
+        session_basename = (experiment.Session & key).fetch1('session_basename')
 
         # Idea: from the rig for this session, fetch the tracking device(s) to be used in "load_tracking"
         # e.g.: tracking_devices = (tracking.RigDevice * experiment.Session & key).fetch()
 
         # Expecting the "loader.load_tracking()" method to return a list of dictionary
         # each member dict represents tracking data for one tracking device
-        all_tracking_data = loader.load_tracking(session_dir, key['subject_id'], session_datetime)
+        all_tracking_data = loader.load_tracking(session_dir, key['subject_id'], session_basename)
 
         tracking_files = []
 

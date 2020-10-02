@@ -19,8 +19,9 @@ loader = get_loader()
 For debugging purposes (to be removed)
 from pipeline.ingest import behavior_ingest
 from pipeline.ingest.loaders.vincent import VincentLoader
-self = VincentLoader('D:/Vincent/', dj.config)
-key= {'subject_id': 'vIRt47', 'session': 7}
+self = VincentLoader('Z:/Vincent/Ephys/', dj.config)
+key= {'subject_id': 'vIRt49', 'session': 1}
+subject_name = 'vIRt49'
 """
 
 
@@ -65,26 +66,20 @@ class BehaviorIngestion(dj.Imported):
         # passing `key` as first arguments returns this error:
         # load_behavior() takes 4 positional arguments but 5 were given
         # that doesn't seem to be a problem for load_tracking ... Or is it?
-        all_behavior_data = loader.load_behavior(session_dir, key['subject_id'],session_basename)
+        all_behavior_data = loader.load_behavior(session_dir, key['subject_id'], session_basename)
 
         for behavior_data in all_behavior_data:
-
             # ---- insert to relevant tables ----
-            # insert to the main Tracking
-            experiment.Task.insert1({**key, **behavior_data},
-                                    allow_direct_insert=True, ignore_extra_fields=True)
             experiment.Photostim.insert([{**key, **photostim} for photostim in behavior_data['photostims']],
-                                        allow_direct_insert=True, ignore_extra_fields=True)
+                                           allow_direct_insert=True, ignore_extra_fields=True)
             experiment.SessionTrial.insert([{**key, **trials} for trials in behavior_data['session_trials']],
                                            allow_direct_insert=True, ignore_extra_fields=True)
-            experiment.PhotostimTrial.insert([{**key, **photostim_trial}
-                                              for photostim_trial in behavior_data['photostim_trials']],
-                                             allow_direct_insert=True, ignore_extra_fields=True)
-            experiment.PhotostimEvent.insert([{**key, **photostim_event}
-                                              for photostim_event in behavior_data['photostim_events']],
-                                             allow_direct_insert=True, ignore_extra_fields=True)
-            experiment.Project.insert1({**key, **behavior_data},
-                                       allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.BehaviorTrial.insert([{**key, **trials} for trials in behavior_data['behavior_trials']],
+                                           allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.PhotostimTrial.insert([{**key, **photostim_trial} for photostim_trial in behavior_data['photostim_trials']],
+                                           allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.PhotostimEvent.insert([{**key, **photostim_event} for photostim_event in behavior_data['photostim_events']],
+                                           allow_direct_insert=True, ignore_extra_fields=True)
 
             # insert into self
             self.insert1(key)

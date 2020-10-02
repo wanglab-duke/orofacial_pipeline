@@ -21,7 +21,7 @@ For debugging purposes (to be removed)
 from pipeline.ingest import ephys_ingest
 from pipeline.ingest.loaders.vincent import VincentLoader
 self = VincentLoader('D:/Vincent/', dj.config)
-key= {'subject_id': 'vIRt47', 'session': 7}
+key= {'subject_id': 'vIRt49', 'session': 1}
 """
 
 
@@ -162,6 +162,9 @@ def _gen_electrode_config(probe_key, electrode_list):
     probe_type = (lab.ProbeType & (lab.Probe & probe_key)).fetch1('KEY')
 
     q_electrodes = lab.ProbeType.Electrode & (lab.Probe & probe_key)
+ #   if len(q_electrodes) == 0:
+ #      lab.ProbeType.create_silicon_probe(probe_type)
+ #      q_electrodes = lab.ProbeType.Electrode & (lab.Probe & probe_key)
     eg_members = [(q_electrodes & {'electrode': eid}).fetch1('KEY') for eid in electrode_list]
 
     assert len(eg_members) != 0, '0 electrode found in generating ElectrodeConfig'
