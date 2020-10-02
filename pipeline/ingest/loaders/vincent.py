@@ -109,6 +109,7 @@ class VincentLoader:
     tracking_camera = 'WT_Camera_Vincent 0'
     tracking_fps = 500
     default_task = 'hf wheel'
+    default_task_protocol = 0
 
     def __init__(self, root_data_dir, config={}):
         self.config = config
@@ -160,6 +161,7 @@ class VincentLoader:
         with open(session_info_file[0]) as f:
             sessinfo = json.load(f)
         task = sessinfo.get('task', self.default_task) # if task not specified, set default (e.g, head-fixed wheel running)
+        task_protocol = sessinfo.get('task_protocol', self.default_task_protocol) # same for task protocol
 
         # ---- get Photostim parameters (need to export notes first) ----
         photostim_params = sessinfo.get('photoStim')  #
@@ -193,9 +195,11 @@ class VincentLoader:
         # (can be found in session's json file, or read from trial.csv. First solution is the most straightforward)
         power = photostims[0]['power']  # TODO: hardcoded using "power" from the 1st photostim protocol in the list, verify this
         trial_structure = sessinfo.get('trials')
+
         if trial_structure:
             # get trial structure then apply structure to TTLs
             session_trials = []
+            behavior_trials = []
             photostim_trials = []
             photostim_events = []
             ttl_id = np.arange(len(ttl_ts))
@@ -204,30 +208,27 @@ class VincentLoader:
                 trials = {'trial': tr['trialNum'],
                           'start_time': tr['start'],
                           'stop_time': tr['stop']}
+                behavior_trials.append({'trial': tr['trialNum'], 'task': task, 'task_protocol': task_protocol})
                 if tr['isphotostim']:
                     photostim_trial = {'trial': tr['trialNum']}
                     ttl_idx = (ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])
-                    photostim_event = {'trial': photostim_trial,
+                    photostim_event = {'trial': tr['trialNum'],
                                        'photostim_event_id': ttl_id[ttl_idx],
-                                       'photostim_event_time': ttl_ts[ttl_idx]-tr['start'],
+                                       # assign the photostim protocol those photostim events correspond to
+                                       'photo_stim': tr.get('photo_stim', photostims[0]['photo_stim']),  # by default, assign first protocol number
+                                       'photostim_event_time': ttl_ts[ttl_idx] - tr['start'],
                                        'photostim_power': photostim_power_array[ttl_idx]}
                     photostim_trials.append(photostim_trial)
                     photostim_events.append(photostim_event)
                 session_trials.append(trials)
 
-        if subject_name.find('vIRt'):
-            project = 'vIRt'
-        else:
-            project = []
-
-        return [{'task': task,
-                 'photostims': photostims,
+        return [{'photostims': photostims,
                  'session_trials': session_trials,
+                 'behavior_trials': behavior_trials,
                  'photostim_trials': photostim_trials,
-                 'photostim_events': photostim_events,
-                 'project': project}]
+                 'photostim_events': photostim_events}]
 
-    def load_tracking(self, session_dir, subject_name, session_datetime):
+    def load_tracking(self, session_dir, subject_name, session_basename):
         # TODO: decide where wheel position data from rotary encoder goes.
         #  For now, this is considered tracking data, although it's not video based.
 
@@ -235,9 +236,10 @@ class VincentLoader:
         tracking_dir = session_dir / 'WhiskerTracking'
         if not tracking_dir.exists():
             raise FileNotFoundError(f'{tracking_dir} not found!')
-        datetime_str = datetime.strftime(session_datetime, '%Y%m%d%H%M%S')
-
-        tracking_fp = list(tracking_dir.glob(f'{subject_name}*{datetime_str}*.mat'))
+        # if the basename is defined by the session datetime, get files with something like this:
+        # datetime_str = datetime.strftime(session_datetime, '%Y%m%d-%H%M%S')
+        # tracking_fp = list(tracking_dir.glob(f'{subject_name}*{datetime_str}*.mat'))
+        tracking_fp = list(tracking_dir.glob(f'{session_basename}*.mat'))
 
         if len(tracking_fp) != 1:
             raise FileNotFoundError(f'Unable to find tracking .mat - Found: {tracking_fp}')
