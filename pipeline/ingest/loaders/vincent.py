@@ -206,14 +206,14 @@ class VincentLoader:
                 if tr['isphotostim']:
                     photostim_trials.append({'trial': tr['trialNum']})
                     # get photostim protocol
-                    stim_protocol = tr.get('photo_stim', photostims[0]['photo_stim']),  # by default, assign first protocol number
+                    stim_protocol = tr.get('photo_stim', photostims[0]['photo_stim'])  # by default, assign first protocol number
                     # search through all photostim events
                     trial_ts = ttl_ts[(ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])]  # ttl timestamps for this trial
                     photostim_event = [{'trial': tr['trialNum'],
                                         'photo_stim': photostim_mapper[stim_protocol]['photo_stim'], # assign the photostim protocol those photostim events correspond to
                                         'photostim_event_id': idx,
                                         'photostim_event_time': ts - tr['start'],
-                                        'photostim_power': photostim_mapper[stim_protocol]['power']}
+                                        'power': photostim_mapper[stim_protocol]['power']}
                                        for idx, ts in enumerate(trial_ts)]
                     photostim_events.extend(photostim_event)
 
