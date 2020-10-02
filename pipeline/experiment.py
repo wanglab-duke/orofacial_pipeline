@@ -60,7 +60,11 @@ class TaskProtocol(dj.Lookup):
     task_protocol_description : varchar(4000)
     """
 
-    contents = []
+    contents = [
+        ('hf wheel', 0, 'just running, no tactile stimulation '),
+        ('hf wheel', 1, 'running, poke for asymmetric whisking'),
+        ('hf wall dist', 100, '') #TODO describe the default wall distance protocol
+    ]
 
 
 # ---- Photostimulation ----
