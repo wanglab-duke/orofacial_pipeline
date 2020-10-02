@@ -71,11 +71,11 @@ class BehaviorIngestion(dj.Imported):
         for behavior_data in all_behavior_data:
             # ---- insert to relevant tables ----
             experiment.Photostim.insert([{**key, **photostim} for photostim in behavior_data['photostims']],
+                                        allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.SessionTrial.insert([{**key, **trial} for trial in behavior_data['session_trials']],
                                            allow_direct_insert=True, ignore_extra_fields=True)
-            experiment.SessionTrial.insert([{**key, **trials} for trials in behavior_data['session_trials']],
-                                           allow_direct_insert=True, ignore_extra_fields=True)
-            experiment.BehaviorTrial.insert([{**key, **trials} for trials in behavior_data['behavior_trials']],
-                                           allow_direct_insert=True, ignore_extra_fields=True)
+            experiment.BehaviorTrial.insert([{**key, **trial} for trial in behavior_data['behavior_trials']],
+                                            allow_direct_insert=True, ignore_extra_fields=True)
             experiment.PhotostimTrial.insert([{**key, **photostim_trial} for photostim_trial in behavior_data['photostim_trials']],
                                            allow_direct_insert=True, ignore_extra_fields=True)
             experiment.PhotostimEvent.insert([{**key, **photostim_event} for photostim_event in behavior_data['photostim_events']],
