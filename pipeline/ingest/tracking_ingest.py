@@ -78,7 +78,7 @@ class TrackingIngestion(dj.Imported):
                                       allow_direct_insert=True, ignore_extra_fields=True)
             # insert to the Tracking part-tables (different tracked features)
             for tbl_name, tbl_data in part_tbl_data.items():
-                part_tbl = tracking.Tracking.tracking_features[tbl_name]
+                part_tbl = tracking.Tracking().tracking_features[tbl_name]
                 if isinstance(tbl_data, dict):
                     part_tbl.insert1({**key, **tracking_data, **tbl_data},
                                      allow_direct_insert=True, ignore_extra_fields=True)

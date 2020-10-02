@@ -183,7 +183,7 @@ class VincentLoader:
                 photostims.append(photostim)
 
         # ---- load files with TTLs and trial data ----
-        ephys_dir = session_dir / 'SpikeSorting' / session_basename
+        ephys_dir = session_dir / 'SpikeSorting' / session_basename # TODO: get TTLs from session directory, since some sessions do not have a spike sorting folder
         if not ephys_dir.exists():
             raise FileNotFoundError(f'{ephys_dir} not found!')
         ttl_file = os.path.join(ephys_dir, session_basename + '_TTLs.dat')
@@ -253,7 +253,7 @@ class VincentLoader:
             matched_fid = trk_mat.fid[matched_wid]
             _, matched_frame_idx, _ = np.intersect1d(matched_fid, frames, return_indices=True)
 
-            for var in ('follicle_x', 'follicle_y', 'angle'):
+            for var in ('angle', 'curvature', 'follicle_x', 'follicle_y', 'face_x', 'face_y', 'tip_x', 'tip_y'):
                 d = np.full(len(frames), np.nan)
                 d[matched_frame_idx] = getattr(trk_mat, var)[matched_wid]
                 whiskers[wid][var] = d
