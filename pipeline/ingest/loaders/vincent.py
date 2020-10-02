@@ -193,34 +193,29 @@ class VincentLoader:
 
         # ---- get trial info ----
         # (can be found in session's json file, or read from trial.csv. First solution is the most straightforward)
-        power = photostims[0]['power']  # TODO: hardcoded using "power" from the 1st photostim protocol in the list, verify this
+        photostim_mapper = {p['photo_stim']: p for p in photostims}
         trial_structure = sessinfo.get('trials')
+
+        session_trials, behavior_trials, photostim_trials, photostim_events = [], [], [], []
 
         if trial_structure:
             # get trial structure then apply structure to TTLs
-            session_trials = []
-            behavior_trials = []
-            photostim_trials = []
-            photostim_events = []
-            ttl_id = np.arange(len(ttl_ts))
-            photostim_power_array = np.tile(power, len(ttl_ts))
             for tr in trial_structure:
-                trials = {'trial': tr['trialNum'],
-                          'start_time': tr['start'],
-                          'stop_time': tr['stop']}
+                session_trials.append({'trial': tr['trialNum'], 'start_time': tr['start'], 'stop_time': tr['stop']})
                 behavior_trials.append({'trial': tr['trialNum'], 'task': task, 'task_protocol': task_protocol})
                 if tr['isphotostim']:
-                    photostim_trial = {'trial': tr['trialNum']}
-                    ttl_idx = (ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])
-                    photostim_event = {'trial': tr['trialNum'],
-                                       'photostim_event_id': ttl_id[ttl_idx],
-                                       # assign the photostim protocol those photostim events correspond to
-                                       'photo_stim': tr.get('photo_stim', photostims[0]['photo_stim']),  # by default, assign first protocol number
-                                       'photostim_event_time': ttl_ts[ttl_idx] - tr['start'],
-                                       'photostim_power': photostim_power_array[ttl_idx]}
-                    photostim_trials.append(photostim_trial)
-                    photostim_events.append(photostim_event)
-                session_trials.append(trials)
+                    photostim_trials.append({'trial': tr['trialNum']})
+                    # get photostim protocol
+                    stim_protocol = tr.get('photo_stim', photostims[0]['photo_stim']),  # by default, assign first protocol number
+                    # search through all photostim events
+                    trial_ts = ttl_ts[(ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])]  # ttl timestamps for this trial
+                    photostim_event = [{'trial': tr['trialNum'],
+                                        'photo_stim': photostim_mapper[stim_protocol]['photo_stim'], # assign the photostim protocol those photostim events correspond to
+                                        'photostim_event_id': idx,
+                                        'photostim_event_time': ts - tr['start'],
+                                        'photostim_power': photostim_mapper[stim_protocol]['power']}
+                                       for idx, ts in enumerate(trial_ts)]
+                    photostim_events.extend(photostim_event)
 
         return [{'photostims': photostims,
                  'session_trials': session_trials,
