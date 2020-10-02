@@ -214,6 +214,8 @@ class VincentLoader:
                     ttl_idx = (ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])
                     photostim_event = {'trial': tr['trialNum'],
                                        'photostim_event_id': ttl_id[ttl_idx],
+                                       # assign the photostim protocol those photostim events correspond to
+                                       'photo_stim': tr.get('photo_stim', photostims[0]['photo_stim']),  # by default, assign first protocol number
                                        'photostim_event_time': ttl_ts[ttl_idx] - tr['start'],
                                        'photostim_power': photostim_power_array[ttl_idx]}
                     photostim_trials.append(photostim_trial)
