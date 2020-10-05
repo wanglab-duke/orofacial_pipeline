@@ -20,7 +20,7 @@ For debugging purposes (to be removed)
 from pipeline.ingest import behavior_ingest
 from pipeline.ingest.loaders.vincent import VincentLoader
 self = VincentLoader('Z:/Vincent/Ephys/', dj.config)
-key= {'subject_id': 'vIRt49', 'session': 1}
+key= {'subject_id': 'vIRt49', 'session': 4}
 subject_name = 'vIRt49'
 """
 

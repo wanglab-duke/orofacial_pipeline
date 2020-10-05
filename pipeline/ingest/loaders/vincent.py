@@ -166,11 +166,14 @@ class VincentLoader:
         # ---- get Photostim parameters (need to export notes first) ----
         photostim_params = sessinfo.get('photoStim')  #
         if photostim_params:
-            if not isinstance(photostim_params, list):
-                photostim_params_copy = photostim_params.copy()
-                photostim_params = [photostim_params_copy]
+            if photostim_params['protocolNum'] == -1:
+                photostim_params = None
 
-            photostims = []  
+        photostims = []
+        if photostim_params:
+            if not isinstance(photostim_params, list):
+                photostim_params = [photostim_params.copy()]
+
             for psp in photostim_params:
                 photostim = {'photo_stim': psp['protocolNum'],
                              'photostim_device': psp['stimDevice'],
@@ -187,14 +190,20 @@ class VincentLoader:
         if not ephys_dir.exists():
             raise FileNotFoundError(f'{ephys_dir} not found!')
         ttl_file = os.path.join(ephys_dir, session_basename + '_TTLs.dat')
-        with open(ttl_file, 'rb') as fid:
-            ttl_ts = np.fromfile(fid, np.single)
-        # load .dat with numpy. Load into 2 columns: .reshape((-1, 2)); to transpose: .T
+        if os.path.exists(ttl_file):
+            with open(ttl_file, 'rb') as fid:
+                # load .dat with numpy. Load into 2 columns: .reshape((-1, 2)); to transpose: .T
+                ttl_ts = np.fromfile(fid, np.single)
 
         # ---- get trial info ----
         # (can be found in session's json file, or read from trial.csv. First solution is the most straightforward)
-        photostim_mapper = {p['photo_stim']: p for p in photostims}
+        try:
+            photostim_mapper = {p['photo_stim']: p for p in photostims}
+        except:
+            photostim_mapper = None  #if no photostims present
         trial_structure = sessinfo.get('trials')
+        if not isinstance(trial_structure, list):
+            trial_structure = [trial_structure.copy()]
 
         session_trials, behavior_trials, photostim_trials, photostim_events = [], [], [], []
 
