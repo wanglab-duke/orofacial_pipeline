@@ -12,7 +12,7 @@ import re
 
 
 """
-This module houses a LoaderClass for Vincent's data format
+This module houses a LoaderClass for Wenxi's data format
     Input: 
         + root_data_dir: root directory of the data for all subjects
         + config: configuration parameters (typically, dj.config) 
@@ -117,14 +117,13 @@ class WenxiLoader:
         self.loader_name = self.__class__.__name__
 
     def load_sessions(self, subject_name):
+
+        session_info = list(self.root_data_dir.rglob('**/*info.json'))
+
+
         subj_dir = self.root_data_dir / subject_name
         if not subj_dir.exists():
             raise FileNotFoundError(f'{subj_dir} not found!')
-
-        # find all sessions' json files, which contain the processed files for each session
-        
-        """ # TODO: change this code block according to your file formats and folder structure
-        all_sessions = list(subj_dir.rglob('**/*info.json'))
 
         # ---- parse processed data folders:
         for sess in all_sessions:
@@ -139,7 +138,7 @@ class WenxiLoader:
             # find all associated files
             session_files = [sess.relative_to(self.root_data_dir)
                              for sess in data_dir.glob(f'{sess_basename}*')]
-                             """
+
 
             yield {'subject_id': subject_name,
                    'session_date': sess_datetime.date(),
