@@ -20,7 +20,7 @@ For debugging purposes (to be removed)
 from pipeline.ingest import behavior_ingest
 from pipeline.ingest.loaders.vincent import VincentLoader
 self = VincentLoader('Z:/Vincent/Ephys/', dj.config)
-key= {'subject_id': 'vIRt49', 'session': 4}
+key= {'subject_id': 'vIRt49', 'session': 1}
 subject_name = 'vIRt49'
 """
 
@@ -72,6 +72,10 @@ class BehaviorIngestion(dj.Imported):
             # ---- insert to relevant tables ----
             experiment.Photostim.insert([{**key, **photostim} for photostim in behavior_data['photostims']],
                                         allow_direct_insert=True, ignore_extra_fields=True)
+            if 'photostim_locations' in behavior_data:
+                experiment.Photostim.PhotostimLocation.insert(
+                    [{**key, **photostim_location} for photostim_location in behavior_data['photostim_locations']],
+                    allow_direct_insert=True, ignore_extra_fields=True)
             experiment.SessionTrial.insert([{**key, **trial} for trial in behavior_data['session_trials']],
                                            allow_direct_insert=True, ignore_extra_fields=True)
             experiment.BehaviorTrial.insert([{**key, **trial} for trial in behavior_data['behavior_trials']],

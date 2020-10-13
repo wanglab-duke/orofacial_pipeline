@@ -170,6 +170,7 @@ class VincentLoader:
                 photostim_params = None
 
         photostims = []
+        photostim_locations = []
         if photostim_params:
             if not isinstance(photostim_params, list):
                 photostim_params = [photostim_params.copy()]
@@ -181,9 +182,17 @@ class VincentLoader:
                              'pulse_duration': psp['pulseDur'],
                              'pulse_frequency': psp['stimFreq'],
                              'pulses_per_train': psp['trainLength'],
-                             'waveform': psp.get('waveform', []),
-                             **psp.get('photostim_location', {})}  # TODO: get photostim_location from FO implant info
+                             'waveform': psp.get('waveform', [])}
                 photostims.append(photostim)
+                if 'photostim_location' in psp:
+                    stim_loc = psp['photostim_location']
+                    stim_loc['skull_reference'] = stim_loc.pop('skullRef')
+                    stim_loc['brain_area'] = stim_loc.pop('targetBrainArea')
+                    if isinstance(stim_loc['brain_area'], str):
+                        if not stim_loc['brain_area']:
+                            stim_loc['brain_area'] = None
+                    photostim_location = {'photo_stim': psp['protocolNum'], **stim_loc}
+                    photostim_locations.append(photostim_location)
 
         # ---- load files with TTLs and trial data ----
         ephys_dir = session_dir / 'SpikeSorting' / session_basename # TODO: get TTLs from session directory, since some sessions do not have a spike sorting folder
@@ -227,6 +236,7 @@ class VincentLoader:
                     photostim_events.extend(photostim_event)
 
         return [{'photostims': photostims,
+                 'photostim_locations': photostim_locations,
                  'session_trials': session_trials,
                  'behavior_trials': behavior_trials,
                  'photostim_trials': photostim_trials,
