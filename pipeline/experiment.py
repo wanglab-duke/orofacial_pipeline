@@ -63,9 +63,9 @@ class TaskProtocol(dj.Lookup):
     contents = [
         ('hf wheel', 0, 'just running, no tactile stimulation '),
         ('hf wheel', 1, 'running, poke for asymmetric whisking'),
-        ('hf wall dist', 100, 'nopass'), #TODO describe the default wall distance protocol
-        ('hf wall dist', 101, 'forward pass')  # TODO describe the default wall distance protocol
-        ('hf wall dist', 102, 'reverse pass')  # TODO describe the default wall distance protocol
+        ('hf wall dist', 100, 'nopass'),
+        ('hf wall dist', 101, 'forward pass'),
+        ('hf wall dist', 102, 'reverse pass')
     ]
 
 

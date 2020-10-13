@@ -118,15 +118,16 @@ class WenxiLoader:
 
     def load_sessions(self, subject_name):
 
-        session_info = list(self.root_data_dir.rglob('**/*info.json'))
-
+        subject_session_info = list(self.root_data_dir.rglob(f'**/{subject_name}*info.json'))
+        with open(subject_session_info[0]) as f:
+            session_info = json.load(f)
 
         subj_dir = self.root_data_dir / subject_name
         if not subj_dir.exists():
             raise FileNotFoundError(f'{subj_dir} not found!')
 
         # ---- parse processed data folders:
-        for sess in all_sessions:
+        for sess in session_info:
             with open(sess.absolute()) as f:
                 sessinfo = json.load(f)
             sess_datetime = datetime.strptime(sessinfo['date'], '%d-%b-%Y %H:%M:%S')
