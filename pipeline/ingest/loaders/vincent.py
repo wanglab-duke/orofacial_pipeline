@@ -188,9 +188,8 @@ class VincentLoader:
                     stim_loc = psp['photostim_location']
                     stim_loc['skull_reference'] = stim_loc.pop('skullRef')
                     stim_loc['brain_area'] = stim_loc.pop('targetBrainArea')
-                    if isinstance(stim_loc['brain_area'], str):
-                        if not stim_loc['brain_area']:
-                            stim_loc['brain_area'] = None
+                    if not bool(stim_loc['brain_area']):
+                        stim_loc['brain_area'] = None
                     photostim_location = {'photo_stim': psp['protocolNum'], **stim_loc}
                     photostim_locations.append(photostim_location)
 
