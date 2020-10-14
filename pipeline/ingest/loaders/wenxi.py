@@ -12,7 +12,7 @@ import re
 
 
 """
-This module houses a LoaderClass for Vincent's data format
+This module houses a LoaderClass for Wenxi's data format
     Input: 
         + root_data_dir: root directory of the data for all subjects
         + config: configuration parameters (typically, dj.config) 
@@ -106,7 +106,7 @@ Any loader class must have the following interfaces:
 
 class WenxiLoader:
 
-    tracking_camera = '' #TODO: specify here tracking device (to be added in tracking.py > TrackingDevice). Or pass that information to tracking_ingest function
+    tracking_camera = 'WX_acA800-510um_0' #TODO: specify here tracking device (to be added in tracking.py > TrackingDevice). Or pass that information to tracking_ingest function
     tracking_fps = 500
     default_task = 'hf wall dist' #TODO: describe task protocol used in experiment.py > Task > TaskProtocol
     default_task_protocol = 100
@@ -117,29 +117,27 @@ class WenxiLoader:
         self.loader_name = self.__class__.__name__
 
     def load_sessions(self, subject_name):
-        subj_dir = self.root_data_dir / subject_name
-        if not subj_dir.exists():
-            raise FileNotFoundError(f'{subj_dir} not found!')
 
-        # find all sessions' json files, which contain the processed files for each session
-        
-        """ # TODO: change this code block according to your file formats and folder structure
-        all_sessions = list(subj_dir.rglob('**/*info.json'))
+        subject_session_info = list(self.root_data_dir.rglob(f'**/{subject_name}*info.json'))
+        with open(subject_session_info[0]) as f:
+            session_info = json.load(f)
+        session_info=session_info['sessions']
+
+        #subj_dir = self.root_data_dir / subject_name
+        #if not subj_dir.exists():
+        #    raise FileNotFoundError(f'{subj_dir} not found!')
 
         # ---- parse processed data folders:
-        for sess in all_sessions:
-            with open(sess.absolute()) as f:
-                sessinfo = json.load(f)
-            sess_datetime = datetime.strptime(sessinfo['date'], '%d-%b-%Y %H:%M:%S')
+        for sess in session_info:
+            sess_datetime = datetime.strptime(sess['date'], '%d-%b-%Y %H:%M:%S')
             # if needed, short form date can be retrieved here. Else, get it from sess_datetime
             # sess_shortdate = sessinfo['shortDate']
             # find the basename of the other related files for this session
-            sess_basename = sessinfo['baseName']
-            data_dir = sess.parent
+            sess_basename = sess['sess_basename']
+            data_dir = pathlib.Path(sess['session_directory'])
             # find all associated files
             session_files = [sess.relative_to(self.root_data_dir)
-                             for sess in data_dir.glob(f'{sess_basename}*')]
-                             """
+                             for sess in data_dir.glob('**/*')]
 
             yield {'subject_id': subject_name,
                    'session_date': sess_datetime.date(),
@@ -168,28 +166,6 @@ class WenxiLoader:
         task_protocol = sessinfo.get('task_protocol', self.default_task_protocol) # same for task protocol
 
         """
-
-        # ---- get Photostim parameters (need to export notes first) ----
-        photostim_params = sessinfo.get('photoStim')  #
-        if photostim_params:
-            if photostim_params['protocolNum'] == -1:
-                photostim_params = None
-
-        photostims = []
-        if photostim_params:
-            if not isinstance(photostim_params, list):
-                photostim_params = [photostim_params.copy()]
-
-            for psp in photostim_params:
-                photostim = {'photo_stim': psp['protocolNum'],
-                             'photostim_device': psp['stimDevice'],
-                             'power': psp['stimPower'],
-                             'pulse_duration': psp['pulseDur'],
-                             'pulse_frequency': psp['stimFreq'],
-                             'pulses_per_train': psp['trainLength'],
-                             'waveform': psp.get('waveform', []),
-                             **psp.get('photostim_location', {})}  # TODO: get photostim_location from FO implant info
-                photostims.append(photostim)
 
         # ---- load files with TTLs and trial data ----
         """ # TODO: change this code block according to your file formats and folder structure
@@ -220,22 +196,9 @@ class WenxiLoader:
             for tr in trial_structure:
                 session_trials.append({'trial': tr['trialNum'], 'start_time': tr['start'], 'stop_time': tr['stop']})
                 behavior_trials.append({'trial': tr['trialNum'], 'task': task, 'task_protocol': task_protocol})
-                if tr['isphotostim']:
-                    photostim_trials.append({'trial': tr['trialNum']})
-                    # get photostim protocol
-                    stim_protocol = tr.get('photo_stim', photostims[0]['photo_stim'])  # by default, assign first protocol number
-                    # search through all photostim events
-                    trial_ts = ttl_ts[(ttl_ts >= tr['start']) & (ttl_ts < tr['stop'])]  # ttl timestamps for this trial
-                    photostim_event = [{'trial': tr['trialNum'],
-                                        'photo_stim': photostim_mapper[stim_protocol]['photo_stim'], # assign the photostim protocol those photostim events correspond to
-                                        'photostim_event_id': idx,
-                                        'photostim_event_time': ts - tr['start'],
-                                        'power': photostim_mapper[stim_protocol]['power']}
-                                       for idx, ts in enumerate(trial_ts)]
-                    photostim_events.extend(photostim_event)
+                
 
-        return [{'photostims': photostims,
-                 'session_trials': session_trials,
+        return [{'session_trials': session_trials,
                  'behavior_trials': behavior_trials,
                  'photostim_trials': photostim_trials,
                  'photostim_events': photostim_events}]
