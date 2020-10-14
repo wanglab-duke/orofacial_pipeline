@@ -11,6 +11,15 @@ schema = dj.schema(get_schema_name('ingestion'))
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
+"""
+For debugging purposes (to be removed)
+from pipeline.ingest import session_ingest
+from pipeline.ingest.loaders.wenxi import WenxiLoader
+self = WenxiLoader('Z:/all_staff/Wenxi/PrV_Wall_Recordings/', dj.config)
+key= {'subject_id': 'Rec8', 'session': 1}
+subject_name = 'Rec8'
+"""
+
 # ============== SESSION INGESTION ==================
 
 
