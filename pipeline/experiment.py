@@ -94,7 +94,7 @@ class Photostim(dj.Manual):
         theta:       decimal(5, 2) # (deg) - elevation - rotation about the ml-axis [0, 180] - w.r.t the z+ axis
         phi:         decimal(5, 2) # (deg) - azimuth - rotation about the dv-axis [0, 360] - w.r.t the x+ axis
         ---
-        -> lab.BrainArea           # target brain area for photostim 
+        -> [nullable] lab.BrainArea           # target brain area for photostim 
         """
 
 
