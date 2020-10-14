@@ -121,25 +121,23 @@ class WenxiLoader:
         subject_session_info = list(self.root_data_dir.rglob(f'**/{subject_name}*info.json'))
         with open(subject_session_info[0]) as f:
             session_info = json.load(f)
+        session_info=session_info['sessions']
 
-        subj_dir = self.root_data_dir / subject_name
-        if not subj_dir.exists():
-            raise FileNotFoundError(f'{subj_dir} not found!')
+        #subj_dir = self.root_data_dir / subject_name
+        #if not subj_dir.exists():
+        #    raise FileNotFoundError(f'{subj_dir} not found!')
 
         # ---- parse processed data folders:
         for sess in session_info:
-            with open(sess.absolute()) as f:
-                sessinfo = json.load(f)
-            sess_datetime = datetime.strptime(sessinfo['date'], '%d-%b-%Y %H:%M:%S')
+            sess_datetime = datetime.strptime(sess['date'], '%d-%b-%Y %H:%M:%S')
             # if needed, short form date can be retrieved here. Else, get it from sess_datetime
             # sess_shortdate = sessinfo['shortDate']
             # find the basename of the other related files for this session
-            sess_basename = sessinfo['baseName']
-            data_dir = sess.parent
+            sess_basename = sess['sess_basename']
+            data_dir = pathlib.Path(sess['session_directory'])
             # find all associated files
             session_files = [sess.relative_to(self.root_data_dir)
-                             for sess in data_dir.glob(f'{sess_basename}*')]
-
+                             for sess in data_dir.glob('**/*')]
 
             yield {'subject_id': subject_name,
                    'session_date': sess_datetime.date(),
