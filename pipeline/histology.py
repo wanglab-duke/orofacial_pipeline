@@ -8,47 +8,6 @@ schema = dj.schema(get_schema_name('histology'))
 
 
 @schema
-class CCFToMRITransformation(dj.Imported):
-    definition = """  # one per project - a mapping between CCF coords and MRI coords (e.g. average MRI from 10 brains)
-    project_name: varchar(32)  # e.g. MAP
-    """
-
-    class Landmark(dj.Part):
-        definition = """
-        -> master
-        landmark_id: int
-        ---
-        landmark_name='': varchar(32)
-        mri_x: float  # (mm)
-        mri_y: float  # (mm)
-        mri_z: float  # (mm)
-        ccf_x: float  # (um)
-        ccf_y: float  # (um)
-        ccf_z: float  # (um)
-        """
-
-
-@schema
-class SubjectToCCFTransformation(dj.Imported):
-    definition = """  # one per subject
-    -> lab.Subject
-    """
-
-    class Landmark(dj.Part):
-        definition = """
-        -> master
-        landmark_name:          char(8)         # pt-N from landmark file.
-        ---
-        subj_x:                 float           # (a.u.)
-        subj_y:                 float           # (a.u.)
-        subj_z:                 float           # (a.u.)
-        ccf_x:                  float           # (um)
-        ccf_y:                  float           # (um)
-        ccf_z:                  float           # (um)
-        """
-
-
-@schema
 class ElectrodeCCFPosition(dj.Imported):
     definition = """
     -> ephys.ProbeInsertion
@@ -58,23 +17,8 @@ class ElectrodeCCFPosition(dj.Imported):
         definition = """
         -> master
         -> lab.ElectrodeConfig.Electrode
+        ---
         -> ccf.CCF
-        mri_x: float  # (mm)
-        mri_y: float  # (mm)
-        mri_z: float  # (mm)
-        """
-
-    class ElectrodePositionError(dj.Part):
-        definition = """
-        -> master
-        -> lab.ElectrodeConfig.Electrode
-        -> ccf.CCFLabel
-        ccf_x: int   # (um)
-        ccf_y: int   # (um)
-        ccf_z: int   # (um)
-        mri_x: float  # (mm)
-        mri_y: float  # (mm)
-        mri_z: float  # (mm)
         """
 
 
