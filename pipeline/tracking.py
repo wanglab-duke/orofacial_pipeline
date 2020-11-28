@@ -113,8 +113,8 @@ class WhiskerProcessingParams(dj.Lookup):
     param_set: varchar(30)
     ---
     set_point: float       # (hz)  stopband edge frequency for low-pass threshold
-    angle_passband: float  # (hz)  passband edge frequencies to smooth out high frequencies and remove set point 
-    angle_stopband: float  # (hz)  stopband edge frequencies to smooth out high frequencies and remove set point 
+    angle_passband: float  # (hz)  passband edge frequencies to remove set point 
+    angle_stopband: float  # (hz)  stopband edge frequencies to smooth out high frequencies
     phase_passband: float  # (hz)  passband edge frequencies for 2nd order Butterworth filter applied before Hilbert transform 
     phase_stopband: float  # (hz)  stopband edge frequencies for 2nd order Butterworth filter applied before Hilbert transform 
     """
