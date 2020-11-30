@@ -19,8 +19,8 @@ For debugging purposes (to be removed)
 from pipeline.ingest import tracking_ingest
 from pipeline.ingest.loaders.vincent import VincentLoader
 self = VincentLoader('Z:/Vincent/Ephys/', dj.config)
-key= {'subject_id': 'vIRt49', 'session': 1}
-subject_name = 'vIRt49'
+key= {'subject_id': 'vIRt47', 'session': 20}
+subject_name = 'vIRt47'
 """
 
 @schema
@@ -70,7 +70,8 @@ class TrackingIngestion(dj.Imported):
             # ---- extract information from the imported data (from loader class) ----
             tracking_files.extend(tracking_data.pop('tracking_files'))
             part_tbl_data = {tbl_name: tracking_data.pop(tbl_name)
-                             for tbl_name in tracking.Tracking().tracking_features if tbl_name in tracking_data}
+                             for tbl_name in tracking.Tracking().tracking_features
+                             if tbl_name in tracking_data}
 
             # ---- insert to relevant tracking tables ----
             # insert to the main Tracking
@@ -82,8 +83,12 @@ class TrackingIngestion(dj.Imported):
                 if isinstance(tbl_data, dict):
                     part_tbl.insert1({**key, **tracking_data, **tbl_data},
                                      allow_direct_insert=True, ignore_extra_fields=True)
+                    tracking.ProcessedWhisker.insert1({**key, **tracking_data, **tbl_data},
+                                     allow_direct_insert=True, ignore_extra_fields=True)
                 elif isinstance(tbl_data, list):
                     part_tbl.insert([{**key, **tracking_data, **d} for d in tbl_data],
+                                    allow_direct_insert=True, ignore_extra_fields=True)
+                    tracking.ProcessedWhisker.insert([{**key, **tracking_data, **d} for d in tbl_data],
                                     allow_direct_insert=True, ignore_extra_fields=True)
 
         # insert into self

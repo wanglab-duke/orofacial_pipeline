@@ -246,13 +246,13 @@ class VincentLoader:
         #  For now, this is considered tracking data, although it's not video based.
 
         # ---- identify the .mat file for tracking data ----
-        tracking_dir = session_dir / 'WhiskerTracking'
+        tracking_dir = session_dir / 'Analysis' / session_basename
         if not tracking_dir.exists():
             raise FileNotFoundError(f'{tracking_dir} not found!')
         # if the basename is defined by the session datetime, get files with something like this:
         # datetime_str = datetime.strftime(session_datetime, '%Y%m%d-%H%M%S')
         # tracking_fp = list(tracking_dir.glob(f'{subject_name}*{datetime_str}*.mat'))
-        tracking_fp = list(tracking_dir.glob(f'{session_basename}*.mat'))
+        tracking_fp = list(tracking_dir.glob(f'{session_basename}*_wMeasurements.mat'))
 
         if len(tracking_fp) != 1:
             raise FileNotFoundError(f'Unable to find tracking .mat - Found: {tracking_fp}')
@@ -260,30 +260,31 @@ class VincentLoader:
             tracking_fp = tracking_fp[0]
 
         # ---- load .mat and extract whisker data ----
-        trk_mat = spio.loadmat(tracking_fp, struct_as_record=False, squeeze_me=True)[tracking_fp.stem]
+        wtracking_data = spio.loadmat(tracking_fp, struct_as_record=False, squeeze_me=True)['whiskers']
 
-        frames = np.arange(max(trk_mat.fid) + 1)  # frame number with respect to tracking
-
-        whisker_inds = np.unique(trk_mat.wid)
+        whisker_inds = range(wtracking_data.size)
         whiskers = {wid: {} for wid in whisker_inds}
+        input_varnames = ['angle', 'curvature', 'folX', 'folY', 'faceX', 'faceY', 'tipX', 'tipY']
+        output_varnames = ['angle', 'curvature', 'follicle_x', 'follicle_y', 'face_x', 'face_y', 'tip_x', 'tip_y']
+        input_procvar = ['amplitude', 'velocity', 'setPoint', 'angle_raw', 'angle_BP', 'freq', 'phase']
+        output_procvar = ['amplitude', 'velocity', 'set_point', 'angle_raw', 'angle_bp', 'frequency', 'phase']
+
         for wid in whisker_inds:
-            matched_wid = trk_mat.wid == wid
-            matched_fid = trk_mat.fid[matched_wid]
-            _, matched_frame_idx, _ = np.intersect1d(matched_fid, frames, return_indices=True)
 
-            for var in ('angle', 'curvature', 'follicle_x', 'follicle_y', 'face_x', 'face_y', 'tip_x', 'tip_y'):
-                d = np.full(len(frames), np.nan)
-                d[matched_frame_idx] = getattr(trk_mat, var)[matched_wid]
-                whiskers[wid][var] = d
+            for invar,outvar in zip(input_varnames,output_varnames):
+                whiskers[wid][outvar] = getattr(wtracking_data[wid], invar)
 
-        # ---- Time sync ----
-        # TODO: any time synchronization here
+            if 'phase' in wtracking_data[wid]._fieldnames:
+                whiskers[wid]['param_set'] = 'whiskers_vincent' # name of set of processing parameters for WhiskerProcessingParams
+                for invar, outvar in zip(input_procvar, output_procvar):
+                    whiskers[wid][outvar] = getattr(wtracking_data[wid], invar)
+
         # ---- return ----
         # Return a list of dictionary
         # each member dict represents tracking data for one tracking device
 
         return [{'tracking_device': self.tracking_camera,
-                 'tracking_timestamps': frames / self.tracking_fps,
+                 'tracking_timestamps': wtracking_data[0].timestamp,
                  'tracking_files': [tracking_fp.relative_to(self.root_data_dir)],
                  'WhiskerTracking': [{'whisker_idx': wid, **wdata} for wid, wdata in whiskers.items()]}]
 

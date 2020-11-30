@@ -14,10 +14,12 @@ log.setLevel(logging.DEBUG)
 """
 For debugging purposes (to be removed)
 from pipeline.ingest import session_ingest
-from pipeline.ingest.loaders.wenxi import WenxiLoader
-self = WenxiLoader('Z:/all_staff/Wenxi/PrV_Wall_Recordings/', dj.config)
-key= {'subject_id': 'Rec8', 'session': 1}
-subject_name = 'Rec8'
+#from pipeline.ingest.loaders.wenxi import WenxiLoader
+#self = WenxiLoader('Z:/all_staff/Wenxi/PrV_Wall_Recordings/', dj.config)
+from pipeline.ingest.loaders.vincent import VincentLoader
+self = VincentLoader('Z:/Vincent/Ephys/', dj.config)
+key= {'subject_id': 'vIRt47', 'session': 1}
+subject_name = 'vIRt47'
 """
 
 # ============== SESSION INGESTION ==================
